@@ -15,7 +15,10 @@ public class BlowController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.F))
+        {
+            StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
+        }
     }
 
     private void OnTriggerStay(Collider other)
