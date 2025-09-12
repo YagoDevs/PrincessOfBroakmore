@@ -1,35 +1,32 @@
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public interface IInteractible
 {
-    virtual void Interaction() { }
+    virtual void DoInteraction() { }
     virtual void CheckInteraction() { }
 }
 
-public class Damageable : IInteractible
+public class    Interactible : MonoBehaviour, IInteractible
 {
-    public GameObject interactionObject;
+    public GameObject interactionObject = null;
+    public bool needObject;
+
+    virtual public void DoInteraction()
+    {
+        return;
+    }
 
     public void CheckInteraction()
     {
-        
-    }
-}
-
-public class Interactible : MonoBehaviour
-{
-
-    public GameObject interactionObject;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (interactionObject == null && needObject)
+        {
+            print("FUCK YOU");
+        }
+        else
+        {
+            print("you may interact");
+            DoInteraction();
+        }
     }
 }
