@@ -4,6 +4,9 @@ using UnityEngine.Events;
 public class GameManager : MonoBehaviour
 {
     GameObject endScreen;
+
+    SceneLights lights;
+
     public UnityEvent enterManic = new UnityEvent();
     public UnityEvent exitManic = new UnityEvent();
 
@@ -19,25 +22,28 @@ public class GameManager : MonoBehaviour
 
     void HandleManicChange(bool isManic)
     {
-        if (isManic) enterManic.Invoke();
-        else exitManic.Invoke();
+        if (isManic) EnterManic();
+        else ExitManic();
     }
 
     public void EnterManic()
     {
+        print("manic");
+        lights.LightsChange();
         //change color of lights
         //change vignette?
     }
 
     public void ExitManic()
     {
+        print("not manic");
+        lights.LightsChange();
         //opposite of above
     }
 
     public void OnGameEnd()
     {
         endScreen.SetActive(true);
-        GameStats.isManic = false;
     }
 
     private void OnDisable()
