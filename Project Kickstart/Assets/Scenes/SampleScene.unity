@@ -1273,7 +1273,7 @@ GameObject:
   - component: {fileID: 1047629733}
   - component: {fileID: 1047629732}
   - component: {fileID: 1047629731}
-  - component: {fileID: 1047629730}
+  - component: {fileID: 1047629737}
   m_Layer: 0
   m_Name: Capsule (1)
   m_TagString: Untagged
@@ -1281,25 +1281,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1047629730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1047629729}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8e8ea02caeffad43a68f19f9c431cc0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveForce: 7
-  jumpForce: 5
-  groundCheck: {fileID: 2092458791}
-  groundDistance: 0.2
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
 --- !u!143 &1047629731
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1350,7 +1331,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &1047629733
 CapsuleCollider:
@@ -1445,6 +1426,29 @@ Transform:
   - {fileID: 2092458791}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1047629737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1047629729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e8cc04d0e89e204eb74f1be7396c155, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveForce: 10
+  jumpForce: 4
+  groundCheck: {fileID: 2092458791}
+  groundDistance: 0.2
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  maxSpeed: 6
+  acceleration: 20
+  deceleration: 40
+  noInputDamping: 20
 --- !u!1 &1187698200
 GameObject:
   m_ObjectHideFlags: 0
@@ -1460,7 +1464,7 @@ GameObject:
   - component: {fileID: 1187698205}
   m_Layer: 0
   m_Name: Obstacles
-  m_TagString: Untagged
+  m_TagString: Pushable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1702,7 +1706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31a45afb298bd4f4f9bdad7c7c353e85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pushForce: 5
+  pushForce: 3
   Camera: {fileID: 330585545}
 --- !u!1 &1349475084 stripped
 GameObject:

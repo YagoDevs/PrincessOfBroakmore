@@ -1,0 +1,102 @@
+
+using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+public class Movement2: MonoBehaviour
+{
+    public float moveForce = 10f;
+    public float jumpForce = 7f;
+    public Transform groundCheck;
+    public float groundDistance = 0.2f;
+    public LayerMask groundMask;
+    public float maxSpeed = 6f;
+    public float acceleration = 20f;
+    public float deceleration = 40f;
+    public float noInputDamping = 20f;
+
+    private Rigidbody rb;
+    private bool isGrounded;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+    }
+
+    void Update()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 direction = Vector3.zero;
+
+        if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;
+        if (Input.GetKey(KeyCode.S)) direction += Vector3.back;
+        if (Input.GetKey(KeyCode.A)) direction += Vector3.left;
+        if (Input.GetKey(KeyCode.D)) direction += Vector3.right;
+
+        if (direction != Vector3.zero)
+        {
+            direction.Normalize();
+
+            
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            
+            float rotationSpeed = 360f; 
+            Quaternion smoothRotation = Quaternion.RotateTowards(
+                rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime
+            );
+
+            
+            rb.MoveRotation(smoothRotation);
+
+            float angle = Quaternion.Angle(rb.rotation, targetRotation);
+            if (angle < 30f) 
+            {
+                Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+                float dt = Time.fixedDeltaTime;
+
+                // If moving opposite to input, brake to a stop before accelerating
+                float alignment = horizontalVelocity.sqrMagnitude > 0.0001f
+                    ? Vector3.Dot(horizontalVelocity.normalized, direction)
+                    : 1f;
+
+                Vector3 newHorizontalVelocity = horizontalVelocity;
+                if (alignment <= 0f)
+                {
+                    newHorizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * dt);
+                }
+                else
+                {
+                    Vector3 target = direction * maxSpeed;
+                    newHorizontalVelocity = Vector3.MoveTowards(horizontalVelocity, target, acceleration * dt);
+                }
+
+                rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
+            }
+        }
+        else
+        {
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            Vector3 damped = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, noInputDamping * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(damped.x, rb.linearVelocity.y, damped.z);
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+        }
+    }
+}
