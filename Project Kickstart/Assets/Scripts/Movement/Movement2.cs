@@ -13,6 +13,7 @@ public class Movement2: MonoBehaviour
     public float acceleration = 20f;
     public float deceleration = 40f;
     public float noInputDamping = 20f;
+    private float currentMoveForce;
 
     private Rigidbody rb;
     private bool isGrounded;
@@ -21,6 +22,7 @@ public class Movement2: MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        currentMoveForce = moveForce;
     }
 
     void Update()
@@ -30,6 +32,15 @@ public class Movement2: MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
+        if(!isGrounded)
+        {
+            moveForce = moveForce - (moveForce / 2);
+        }
+        if (isGrounded)
+        {
+            moveForce = currentMoveForce;
         }
     }
 
