@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 205378700}
   - component: {fileID: 205378699}
   - component: {fileID: 205378698}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: VisionObstacles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -720,6 +720,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.9999999, y: 2.6582737, z: 2.2464967}
   m_Center: {x: 0, y: -0.067456536, z: -1.7002529}
+--- !u!1 &325016380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 325016381}
+  m_Layer: 0
+  m_Name: Eyes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &325016381
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325016380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.64, z: -0.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 486759709}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1065,6 +1096,15 @@ MonoBehaviour:
   - {fileID: 1263711482}
   loop: 1
   stoppingDistance: 0.5
+  eyes: {fileID: 325016381}
+  viewRadius: 8
+  viewAngle: 60
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!195 &486759705
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1175,7 +1215,8 @@ Transform:
   m_LocalPosition: {x: -5.49, y: 0.34, z: 8.523879}
   m_LocalScale: {x: 0.5757392, y: 0.5757392, z: 0.5757392}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 325016381}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &607180285
@@ -1599,8 +1640,8 @@ GameObject:
   - component: {fileID: 1047629732}
   - component: {fileID: 1047629731}
   - component: {fileID: 1047629737}
-  m_Layer: 0
-  m_Name: Capsule (1)
+  m_Layer: 6
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1923,7 +1964,7 @@ GameObject:
   - component: {fileID: 1232767089}
   - component: {fileID: 1232767088}
   - component: {fileID: 1232767091}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2706,7 +2747,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2092458791}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
