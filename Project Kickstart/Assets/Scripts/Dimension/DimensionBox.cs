@@ -29,7 +29,7 @@ public class DimensionBox : MonoBehaviour
     [SerializeField] private float savePositionDelay = 0.5f;
     
     [Header("Debug")]
-    [SerializeField] private bool showDebugInfo = false;
+    [SerializeField] private bool showDebugInfo = true;
     [SerializeField] private bool showPositionGizmos = true;
 
     // Estado da caixa
@@ -103,8 +103,8 @@ public class DimensionBox : MonoBehaviour
             ProcessTransition();
         }
         
-        // Detecta movimento da caixa
-        if (canBeMoved && !isTransitioning)
+        // Detecta movimento da caixa (agora sempre, mesmo em transição)
+        if (canBeMoved)
         {
             DetectMovement();
         }
@@ -264,12 +264,13 @@ public class DimensionBox : MonoBehaviour
         transitionTimer = 0f;
         isTransitioning = true;
         
-        // Pausa física durante transição
-        if (hasPhysics)
-        {
-            if (rb2D != null) rb2D.isKinematic = true;
-            if (rb3D != null) rb3D.isKinematic = true;
-        }
+        // NÃO pausa física - permite empurrão durante transição!
+        // Comentado para permitir AddForce funcionar:
+        // if (hasPhysics)
+        // {
+        //     if (rb2D != null) rb2D.isKinematic = true;
+        //     if (rb3D != null) rb3D.isKinematic = true;
+        // }
     }
 
     /// <summary>
@@ -289,15 +290,25 @@ public class DimensionBox : MonoBehaviour
         // Aplica curva de animação
         float curveValue = transitionCurve.Evaluate(progress);
         
-        // Interpola posição
+        // Interpola posição - mas só se não foi empurrada!
         Vector3 currentPosition = Vector3.Lerp(transitionStartPosition, transitionTargetPosition, curveValue);
+        
+        // Verifica se a caixa foi movida por força externa (empurrão)
+        float distanceFromExpected = Vector3.Distance(transform.position, currentPosition);
+        if (distanceFromExpected > movementThreshold * 2f)
+        {
+            // Se foi empurrada, cancela a transição suave e mantém posição atual
+            Debug.Log($"{gameObject.name}: Empurrão detectado durante transição! Cancelando transição.");
+            CompleteTransition();
+            return;
+        }
         
         // Interpola rotação se necessário
         Vector3 currentRotation = useRotation ? 
             Vector3.Lerp(transitionStartRotation, transitionTargetRotation, curveValue) :
             transform.eulerAngles;
         
-        // Aplica transformações
+        // Aplica transformações apenas se não foi empurrada
         transform.position = currentPosition;
         if (useRotation)
             transform.eulerAngles = currentRotation;
@@ -311,12 +322,13 @@ public class DimensionBox : MonoBehaviour
         isTransitioning = false;
         SetPositionImmediate(transitionTargetPosition, transitionTargetRotation);
         
-        // Restaura física
-        if (hasPhysics)
-        {
-            if (rb2D != null) rb2D.isKinematic = false;
-            if (rb3D != null) rb3D.isKinematic = false;
-        }
+        // Como não pausamos física, não precisamos restaurar
+        // Comentado porque não alteramos isKinematic:
+        // if (hasPhysics)
+        // {
+        //     if (rb2D != null) rb2D.isKinematic = false;
+        //     if (rb3D != null) rb3D.isKinematic = false;
+        // }
     }
 
     /// <summary>
