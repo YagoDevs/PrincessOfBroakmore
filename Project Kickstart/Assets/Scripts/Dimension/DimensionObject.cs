@@ -1,21 +1,21 @@
 using UnityEngine;
 
 /// <summary>
-/// Script para objetos que só existem em uma dimensão específica.
-/// Exemplo: uma porta que só existe na Dimensão A, uma plataforma que só existe na Dimensão B.
+/// Script for objects that only exist in a specific dimension.
+/// Example: a door that only exists in Dimension A, a platform that only exists in Dimension B.
 /// </summary>
 public class DimensionObject : MonoBehaviour
 {
-    [Header("Configuração de Dimensão")]
+    [Header("Dimension Configuration")]
     [SerializeField] private DimensionType activeDimension = DimensionType.DimensionA;
     [SerializeField] private bool startActive = true;
     
-    [Header("Modo de Ocultação")]
+    [Header("Hiding Mode")]
     [SerializeField] private HidingMode hidingMode = HidingMode.SetActive;
     [SerializeField] private bool disableColliders = true;
     [SerializeField] private bool disableRenderers = true;
     
-    [Header("Animação de Transição")]
+    [Header("Transition Animation")]
     [SerializeField] private bool useTransitionAnimation = true;
     [SerializeField] private float transitionDuration = 0.3f;
     [SerializeField] private AnimationCurve scaleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -26,36 +26,36 @@ public class DimensionObject : MonoBehaviour
 
     public enum HidingMode
     {
-        SetActive,      // Ativa/desativa o GameObject completamente
-        SetVisible,     // Apenas controla visibilidade (renderers e colliders)
-        SetTransparent  // Usa transparência para esconder/mostrar
+        SetActive,      // Activate/deactivate GameObject completely
+        SetVisible,     // Only control visibility (renderers and colliders)
+        SetTransparent  // Use transparency to hide/show
     }
 
-    // Componentes para controle
+    // Components for control
     private Collider2D[] colliders2D;
     private Collider[] colliders3D;
     private Renderer[] renderers;
     private SpriteRenderer[] spriteRenderers;
     
-    // Estado e animação
+    // State and animation
     private bool isCurrentlyActive = false;
     private bool isTransitioning = false;
     private float transitionTimer = 0f;
     private Vector3 originalScale;
     private Color[] originalColors;
     
-    // Valores para transição
+    // Values for transition
     private bool targetActiveState;
 
     private void Awake()
     {
-        // Cache dos componentes
+        // Cache components
         colliders2D = GetComponentsInChildren<Collider2D>();
         colliders3D = GetComponentsInChildren<Collider>();
         renderers = GetComponentsInChildren<Renderer>();
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
         
-        // Salva escala e cores originais
+        // Save original scale and colors
         originalScale = transform.localScale;
         CacheOriginalColors();
     }
@@ -95,7 +95,7 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Armazena as cores originais dos sprites
+    /// Store original colors of sprites
     /// </summary>
     private void CacheOriginalColors()
     {
@@ -107,9 +107,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Chamado quando a dimensão muda
+    /// Called when dimension changes
     /// </summary>
-    /// <param name="newDimension">Nova dimensão ativa</param>
+    /// <param name="newDimension">New active dimension</param>
     private void OnDimensionChanged(DimensionType newDimension)
     {
         ApplyDimensionState(newDimension, useTransitionAnimation);

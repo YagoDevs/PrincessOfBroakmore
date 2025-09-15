@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BlowController : MonoBehaviour
@@ -6,7 +7,10 @@ public class BlowController : MonoBehaviour
     private Rigidbody ObjectRb;
     public float pushForce;
     public Camera Camera;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    
+    // List of boxes that are in the trigger
+    private List<Rigidbody> pushableObjects = new List<Rigidbody>();
+    
     void Start()
     {
         
@@ -15,21 +19,83 @@ public class BlowController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Check F in Update (more reliable)
         if(Input.GetKeyDown(KeyCode.F))
         {
+            Debug.Log("F detected in Update!");
             StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
+            
+            // Push all nearby boxes
+            PushNearbyObjects();
+        }
+    }
+    
+    /// <summary>
+    /// Pushes all objects that are in the trigger
+    /// </summary>
+    private void PushNearbyObjects()
+    {
+        if (pushableObjects.Count == 0)
+        {
+            Debug.Log("No nearby boxes to push!");
+            return;
+        }
+        
+        foreach (Rigidbody rb in pushableObjects)
+        {
+            if (rb != null)
+            {
+                Debug.Log($"Pushing: {rb.name}");
+                Debug.Log($"isKinematic: {rb.isKinematic}");
+                Debug.Log($"Mass: {rb.mass}");
+                
+                Vector3 pushDirection = transform.forward;
+                Debug.Log($"Direction: {pushDirection}");
+                Debug.Log($"Force: {pushDirection * pushForce}");
+                
+                // Try AddForce first
+                rb.AddForce(pushDirection * pushForce, ForceMode.Impulse);
+                Debug.Log("AddForce applied!");
+                
+                // Backup: apply velocity directly
+                rb.velocity += pushDirection * (pushForce / rb.mass);
+                Debug.Log($"Final velocity: {rb.velocity}");
+            }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Pushable") && (Input.GetKeyDown(KeyCode.F)))
+        // Just detects - does nothing here
+        if (other.CompareTag("Pushable"))
         {
-            Debug.Log("It works");
-            StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
-            ObjectRb = other.GetComponent<Rigidbody>();
-            Vector3 pushDirection = transform.forward;
-            ObjectRb.AddForce(pushDirection * pushForce, ForceMode.Impulse);
+            Debug.Log($"Box detected: {other.name} at position {other.transform.position}");
+        }
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Pushable"))
+        {
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            if (rb != null && !pushableObjects.Contains(rb))
+            {
+                pushableObjects.Add(rb);
+                Debug.Log($"Box added to list: {other.name} (Total: {pushableObjects.Count})");
+            }
+        }
+    }
+    
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Pushable"))
+        {
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            if (rb != null && pushableObjects.Contains(rb))
+            {
+                pushableObjects.Remove(rb);
+                Debug.Log($"Box removed from list: {other.name} (Total: {pushableObjects.Count})");
+            }
         }
     }
 }

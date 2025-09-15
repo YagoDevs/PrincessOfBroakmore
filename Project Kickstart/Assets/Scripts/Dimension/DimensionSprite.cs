@@ -1,22 +1,22 @@
 using UnityEngine;
 
 /// <summary>
-/// Script para objetos que mudam de sprite dependendo da dimensão atual.
-/// Exemplo: uma árvore que tem aparência diferente em cada dimensão.
+/// Script for objects that change sprite depending on current dimension.
+/// Example: a tree that has different appearance in each dimension.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class DimensionSprite : MonoBehaviour
 {
-    [Header("Sprites por Dimensão")]
+    [Header("Sprites per Dimension")]
     [SerializeField] private Sprite spriteForDimensionA;
     [SerializeField] private Sprite spriteForDimensionB;
     
-    [Header("Configurações Opcionais")]
+    [Header("Optional Settings")]
     [SerializeField] private bool changeColor = false;
     [SerializeField] private Color colorForDimensionA = Color.white;
     [SerializeField] private Color colorForDimensionB = Color.white;
     
-    [Header("Animação de Transição")]
+    [Header("Transition Animation")]
     [SerializeField] private bool useTransitionAnimation = true;
     [SerializeField] private float transitionDuration = 0.2f;
     [SerializeField] private AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -64,9 +64,9 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Chamado quando a dimensão muda
+    /// Called when dimension changes
     /// </summary>
-    /// <param name="newDimension">Nova dimensão ativa</param>
+    /// <param name="newDimension">New active dimension</param>
     private void OnDimensionChanged(DimensionType newDimension)
     {
         ApplyDimensionSprite(newDimension, useTransitionAnimation);
@@ -78,9 +78,9 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Aplica o sprite e cor correspondentes à dimensão
+    /// Apply sprite and color corresponding to dimension
     /// </summary>
-    /// <param name="dimension">Dimensão para aplicar</param>
+    /// <param name="dimension">Dimension to apply</param>
     /// <param name="animated">Se deve usar animação de transição</param>
     private void ApplyDimensionSprite(DimensionType dimension, bool animated = true)
     {
@@ -200,7 +200,7 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Força a aplicação imediata da dimensão atual
+    /// Force immediate application of current dimension
     /// </summary>
     [ContextMenu("Aplicar Dimensão Atual")]
     public void ForceApplyCurrentDimension()
