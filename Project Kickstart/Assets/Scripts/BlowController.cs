@@ -8,7 +8,7 @@ public class BlowController : MonoBehaviour
     public float pushForce;
     public Camera Camera;
     
-    // Lista de caixas que estão no trigger
+    // List of boxes that are in the trigger
     private List<Rigidbody> pushableObjects = new List<Rigidbody>();
     
     void Start()
@@ -19,25 +19,25 @@ public class BlowController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Verifica F no Update (mais confiável)
+        // Check F in Update (more reliable)
         if(Input.GetKeyDown(KeyCode.F))
         {
-            Debug.Log("F detectado no Update!");
+            Debug.Log("F detected in Update!");
             StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
             
-            // Empurra todas as caixas próximas
+            // Push all nearby boxes
             PushNearbyObjects();
         }
     }
     
     /// <summary>
-    /// Empurra todos os objetos que estão no trigger
+    /// Pushes all objects that are in the trigger
     /// </summary>
     private void PushNearbyObjects()
     {
         if (pushableObjects.Count == 0)
         {
-            Debug.Log("Nenhuma caixa próxima para empurrar!");
+            Debug.Log("No nearby boxes to push!");
             return;
         }
         
@@ -45,31 +45,31 @@ public class BlowController : MonoBehaviour
         {
             if (rb != null)
             {
-                Debug.Log($"Empurrando: {rb.name}");
+                Debug.Log($"Pushing: {rb.name}");
                 Debug.Log($"isKinematic: {rb.isKinematic}");
                 Debug.Log($"Mass: {rb.mass}");
                 
                 Vector3 pushDirection = transform.forward;
-                Debug.Log($"Direção: {pushDirection}");
-                Debug.Log($"Força: {pushDirection * pushForce}");
+                Debug.Log($"Direction: {pushDirection}");
+                Debug.Log($"Force: {pushDirection * pushForce}");
                 
-                // Tenta AddForce primeiro
+                // Try AddForce first
                 rb.AddForce(pushDirection * pushForce, ForceMode.Impulse);
-                Debug.Log("AddForce aplicado!");
+                Debug.Log("AddForce applied!");
                 
-                // Backup: aplica velocity diretamente
+                // Backup: apply velocity directly
                 rb.velocity += pushDirection * (pushForce / rb.mass);
-                Debug.Log($"Velocity final: {rb.velocity}");
+                Debug.Log($"Final velocity: {rb.velocity}");
             }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        // Apenas detecta - não faz nada aqui
+        // Just detects - does nothing here
         if (other.CompareTag("Pushable"))
         {
-            Debug.Log($"Caixa detectada: {other.name} na posição {other.transform.position}");
+            Debug.Log($"Box detected: {other.name} at position {other.transform.position}");
         }
     }
     
@@ -81,7 +81,7 @@ public class BlowController : MonoBehaviour
             if (rb != null && !pushableObjects.Contains(rb))
             {
                 pushableObjects.Add(rb);
-                Debug.Log($"Caixa adicionada à lista: {other.name} (Total: {pushableObjects.Count})");
+                Debug.Log($"Box added to list: {other.name} (Total: {pushableObjects.Count})");
             }
         }
     }
@@ -94,7 +94,7 @@ public class BlowController : MonoBehaviour
             if (rb != null && pushableObjects.Contains(rb))
             {
                 pushableObjects.Remove(rb);
-                Debug.Log($"Caixa removida da lista: {other.name} (Total: {pushableObjects.Count})");
+                Debug.Log($"Box removed from list: {other.name} (Total: {pushableObjects.Count})");
             }
         }
     }

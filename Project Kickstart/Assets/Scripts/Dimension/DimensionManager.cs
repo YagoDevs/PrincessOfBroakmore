@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Enumeração para identificar as dimensões disponíveis
+/// Enumeration to identify available dimensions
 /// </summary>
 public enum DimensionType
 {
@@ -11,33 +11,33 @@ public enum DimensionType
 }
 
 /// <summary>
-/// Gerenciador principal das dimensões do jogo.
-/// Controla o estado global da dimensão atual e notifica todos os objetos relevantes quando há mudança.
+/// Main game dimension manager.
+/// Controls the global state of the current dimension and notifies all relevant objects when there's a change.
 /// </summary>
 public class DimensionManager : MonoBehaviour
 {
-    [Header("Configurações de Dimensão")]
+    [Header("Dimension Settings")]
     [SerializeField] private DimensionType currentDimension = DimensionType.DimensionA;
     [SerializeField] private KeyCode switchDimensionKey = KeyCode.Tab;
     
     [Header("Debug")]
     [SerializeField] private bool showDebugInfo = true;
     
-    // Singleton pattern para acesso global
+    // Singleton pattern for global access
     public static DimensionManager Instance { get; private set; }
     
-    // Propriedade pública para acessar a dimensão atual
+    // Public property to access current dimension
     public DimensionType CurrentDimension => currentDimension;
     
-    // Evento que é disparado quando a dimensão muda
+    // Event triggered when dimension changes
     public static event Action<DimensionType> OnDimensionChanged;
     
-    // Evento específico para objetos que precisam saber sobre mudanças
+    // Specific event for objects that need to know about changes
     public static event Action<DimensionType, DimensionType> OnDimensionSwitched;
 
     private void Awake()
     {
-        // Implementação do Singleton
+        // Singleton implementation
         if (Instance == null)
         {
             Instance = this;
@@ -52,18 +52,18 @@ public class DimensionManager : MonoBehaviour
 
     private void Start()
     {
-        // Notifica todos os objetos sobre a dimensão inicial
+        // Notify all objects about initial dimension
         NotifyDimensionChange();
         
         if (showDebugInfo)
         {
-            Debug.Log($"DimensionManager iniciado. Dimensão atual: {currentDimension}");
+            Debug.Log($"DimensionManager started. Current dimension: {currentDimension}");
         }
     }
 
     private void Update()
     {
-        // Verifica se o jogador pressionou a tecla para trocar de dimensão
+        // Check if player pressed key to switch dimension
         if (Input.GetKeyDown(switchDimensionKey))
         {
             SwitchDimension();
@@ -71,31 +71,31 @@ public class DimensionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Troca para a outra dimensão
+    /// Switch to the other dimension
     /// </summary>
     public void SwitchDimension()
     {
         DimensionType previousDimension = currentDimension;
         
-        // Alterna entre as dimensões
+        // Alternate between dimensions
         currentDimension = currentDimension == DimensionType.DimensionA 
             ? DimensionType.DimensionB 
             : DimensionType.DimensionA;
         
         if (showDebugInfo)
         {
-            Debug.Log($"Dimensão alterada de {previousDimension} para {currentDimension}");
+            Debug.Log($"Dimension changed from {previousDimension} to {currentDimension}");
         }
         
-        // Notifica todos os objetos sobre a mudança
+        // Notify all objects about the change
         NotifyDimensionChange();
         NotifyDimensionSwitch(previousDimension, currentDimension);
     }
 
     /// <summary>
-    /// Define uma dimensão específica
+    /// Set a specific dimension
     /// </summary>
-    /// <param name="newDimension">Nova dimensão a ser definida</param>
+    /// <param name="newDimension">New dimension to be set</param>
     public void SetDimension(DimensionType newDimension)
     {
         if (currentDimension == newDimension)
@@ -106,7 +106,7 @@ public class DimensionManager : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"Dimensão definida de {previousDimension} para {currentDimension}");
+            Debug.Log($"Dimension set from {previousDimension} to {currentDimension}");
         }
         
         NotifyDimensionChange();
@@ -114,7 +114,7 @@ public class DimensionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Notifica todos os ouvintes sobre a mudança de dimensão
+    /// Notify all listeners about dimension change
     /// </summary>
     private void NotifyDimensionChange()
     {
@@ -122,7 +122,7 @@ public class DimensionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Notifica sobre a troca específica de dimensão (com dimensão anterior e nova)
+    /// Notify about specific dimension switch (with previous and new dimension)
     /// </summary>
     private void NotifyDimensionSwitch(DimensionType from, DimensionType to)
     {
@@ -130,10 +130,10 @@ public class DimensionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Verifica se a dimensão atual é a especificada
+    /// Check if current dimension is the specified one
     /// </summary>
-    /// <param name="dimension">Dimensão para verificar</param>
-    /// <returns>True se for a dimensão atual</returns>
+    /// <param name="dimension">Dimension to check</param>
+    /// <returns>True if it's the current dimension</returns>
     public bool IsCurrentDimension(DimensionType dimension)
     {
         return currentDimension == dimension;
@@ -141,7 +141,7 @@ public class DimensionManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Limpa eventos ao destruir o objeto
+        // Clear events when destroying object
         OnDimensionChanged = null;
         OnDimensionSwitched = null;
     }
@@ -151,9 +151,9 @@ public class DimensionManager : MonoBehaviour
         if (!showDebugInfo)
             return;
             
-        // Interface de debug simples
+        // Simple debug interface
         GUI.Box(new Rect(10, 10, 200, 60), "Dimension Manager");
-        GUI.Label(new Rect(20, 30, 180, 20), $"Dimensão Atual: {currentDimension}");
-        GUI.Label(new Rect(20, 50, 180, 20), $"Tecla: {switchDimensionKey}");
+        GUI.Label(new Rect(20, 30, 180, 20), $"Current Dimension: {currentDimension}");
+        GUI.Label(new Rect(20, 50, 180, 20), $"Key: {switchDimensionKey}");
     }
 }

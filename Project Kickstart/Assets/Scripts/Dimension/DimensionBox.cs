@@ -2,29 +2,29 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Script para objetos móveis que mantêm posições independentes em cada dimensão.
-/// Cada caixa salva suas coordenadas separadamente para A e B.
+/// Script for movable objects that maintain independent positions in each dimension.
+/// Each box saves its coordinates separately for A and B.
 /// </summary>
 public class DimensionBox : MonoBehaviour
 {
-    [Header("Configurações da Caixa")]
+    [Header("Box Settings")]
     [SerializeField] private bool canBeMoved = true;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private bool usePhysics = true;
     
-    [Header("Posições por Dimensão")]
+    [Header("Positions per Dimension")]
     [SerializeField] private Vector3 positionInDimensionA;
     [SerializeField] private Vector3 positionInDimensionB;
     [SerializeField] private bool useRotation = false;
     [SerializeField] private Vector3 rotationInDimensionA;
     [SerializeField] private Vector3 rotationInDimensionB;
     
-    [Header("Transição entre Dimensões")]
+    [Header("Transition between Dimensions")]
     [SerializeField] private bool useTransitionAnimation = true;
     [SerializeField] private float transitionDuration = 0.5f;
     [SerializeField] private AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     
-    [Header("Detecção de Movimento")]
+    [Header("Movement Detection")]
     [SerializeField] private float movementThreshold = 0.1f;
     [SerializeField] private float savePositionDelay = 0.5f;
     
@@ -44,24 +44,24 @@ public class DimensionBox : MonoBehaviour
     private Rigidbody rb3D;
     private bool hasPhysics = false;
     
-    // Transição
+    // Transition
     private float transitionTimer = 0f;
     private Vector3 transitionStartPosition;
     private Vector3 transitionTargetPosition;
     private Vector3 transitionStartRotation;
     private Vector3 transitionTargetRotation;
     
-    // Sistema de salvamento automático
+    // Automatic save system
     private Coroutine savePositionCoroutine;
 
     private void Awake()
     {
-        // Cache dos componentes de física
+        // Cache physics components
         rb2D = GetComponent<Rigidbody2D>();
         rb3D = GetComponent<Rigidbody>();
         hasPhysics = (rb2D != null || rb3D != null) && usePhysics;
         
-        // Inicializa posições se não foram definidas
+        // Initialize positions if not defined
         if (positionInDimensionA == Vector3.zero)
             positionInDimensionA = transform.position;
         if (positionInDimensionB == Vector3.zero)
@@ -78,32 +78,32 @@ public class DimensionBox : MonoBehaviour
 
     private void Start()
     {
-        // Define dimensão atual
+        // Set current dimension
         currentDimension = DimensionManager.Instance != null ? 
             DimensionManager.Instance.CurrentDimension : DimensionType.DimensionA;
         
-        // Aplica posição inicial
+        // Apply initial position
         ApplyDimensionPosition(currentDimension, false);
         lastSavedPosition = transform.position;
         
-        // Inscreve-se nos eventos de mudança de dimensão
+        // Subscribe to dimension change events
         DimensionManager.OnDimensionSwitched += OnDimensionSwitched;
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: DimensionBox iniciada na dimensão {currentDimension}");
+            Debug.Log($"{gameObject.name}: DimensionBox started in dimension {currentDimension}");
         }
     }
 
     private void Update()
     {
-        // Processa animação de transição
+        // Process transition animation
         if (isTransitioning)
         {
             ProcessTransition();
         }
         
-        // Detecta movimento da caixa (agora sempre, mesmo em transição)
+        // Detect box movement (now always, even during transition)
         if (canBeMoved)
         {
             DetectMovement();
@@ -124,7 +124,7 @@ public class DimensionBox : MonoBehaviour
                 isBeingMoved = true;
                 if (showDebugInfo)
                 {
-                    Debug.Log($"{gameObject.name}: Movimento detectado na dimensão {currentDimension}");
+                    Debug.Log($"{gameObject.name}: Movement detected in dimension {currentDimension}");
                 }
             }
             
@@ -144,7 +144,7 @@ public class DimensionBox : MonoBehaviour
     }
 
     /// <summary>
-    /// Salva a posição atual na dimensão ativa
+    /// Save current position in active dimension
     /// </summary>
     private void SaveCurrentPosition()
     {
@@ -166,18 +166,18 @@ public class DimensionBox : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: Posição salva na dimensão {currentDimension}: {currentPos}");
+            Debug.Log($"{gameObject.name}: Position saved in dimension {currentDimension}: {currentPos}");
         }
     }
 
     /// <summary>
-    /// Chamado quando a dimensão muda
+    /// Called when dimension changes
     /// </summary>
-    /// <param name="fromDimension">Dimensão anterior</param>
-    /// <param name="toDimension">Nova dimensão</param>
+    /// <param name="fromDimension">Previous dimension</param>
+    /// <param name="toDimension">New dimension</param>
     private void OnDimensionSwitched(DimensionType fromDimension, DimensionType toDimension)
     {
-        // Salva posição atual antes de trocar
+        // Save current position before switching
         if (isBeingMoved)
         {
             SaveCurrentPosition();
@@ -189,15 +189,15 @@ public class DimensionBox : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: Dimensão mudou de {fromDimension} para {toDimension}");
+            Debug.Log($"{gameObject.name}: Dimension changed from {fromDimension} to {toDimension}");
         }
     }
 
     /// <summary>
-    /// Aplica a posição correspondente à dimensão
+    /// Apply position corresponding to dimension
     /// </summary>
-    /// <param name="dimension">Dimensão alvo</param>
-    /// <param name="animated">Se deve usar animação</param>
+    /// <param name="dimension">Target dimension</param>
+    /// <param name="animated">Whether to use animation</param>
     private void ApplyDimensionPosition(DimensionType dimension, bool animated = true)
     {
         Vector3 targetPosition = dimension == DimensionType.DimensionA ? 
@@ -212,21 +212,21 @@ public class DimensionBox : MonoBehaviour
         }
         else
         {
-            // Aplicação imediata
+            // Immediate application
             SetPositionImmediate(targetPosition, targetRotation);
         }
     }
 
     /// <summary>
-    /// Define posição e rotação imediatamente
+    /// Set position and rotation immediately
     /// </summary>
-    /// <param name="position">Nova posição</param>
-    /// <param name="rotation">Nova rotação</param>
+    /// <param name="position">New position</param>
+    /// <param name="rotation">New rotation</param>
     private void SetPositionImmediate(Vector3 position, Vector3 rotation)
     {
         if (hasPhysics)
         {
-            // Move via física para evitar problemas de colisão
+            // Move via physics to avoid collision problems
             if (rb2D != null)
             {
                 rb2D.MovePosition(position);
@@ -250,10 +250,10 @@ public class DimensionBox : MonoBehaviour
     }
 
     /// <summary>
-    /// Inicia transição animada para nova posição
+    /// Start animated transition to new position
     /// </summary>
-    /// <param name="targetPosition">Posição alvo</param>
-    /// <param name="targetRotation">Rotação alvo</param>
+    /// <param name="targetPosition">Target position</param>
+    /// <param name="targetRotation">Target rotation</param>
     private void StartTransition(Vector3 targetPosition, Vector3 targetRotation)
     {
         transitionStartPosition = transform.position;
@@ -264,8 +264,8 @@ public class DimensionBox : MonoBehaviour
         transitionTimer = 0f;
         isTransitioning = true;
         
-        // NÃO pausa física - permite empurrão durante transição!
-        // Comentado para permitir AddForce funcionar:
+        // DON'T pause physics - allows pushing during transition!
+        // Commented to allow AddForce to work:
         // if (hasPhysics)
         // {
         //     if (rb2D != null) rb2D.isKinematic = true;
@@ -274,7 +274,7 @@ public class DimensionBox : MonoBehaviour
     }
 
     /// <summary>
-    /// Processa a animação de transição
+    /// Process transition animation
     /// </summary>
     private void ProcessTransition()
     {
@@ -287,43 +287,43 @@ public class DimensionBox : MonoBehaviour
             return;
         }
 
-        // Aplica curva de animação
+        // Apply animation curve
         float curveValue = transitionCurve.Evaluate(progress);
         
-        // Interpola posição - mas só se não foi empurrada!
+        // Interpolate position - but only if not pushed!
         Vector3 currentPosition = Vector3.Lerp(transitionStartPosition, transitionTargetPosition, curveValue);
         
-        // Verifica se a caixa foi movida por força externa (empurrão)
+        // Check if box was moved by external force (push)
         float distanceFromExpected = Vector3.Distance(transform.position, currentPosition);
         if (distanceFromExpected > movementThreshold * 2f)
         {
-            // Se foi empurrada, cancela a transição suave e mantém posição atual
-            Debug.Log($"{gameObject.name}: Empurrão detectado durante transição! Cancelando transição.");
+            // If pushed, cancel smooth transition and keep current position
+            Debug.Log($"{gameObject.name}: Push detected during transition! Canceling transition.");
             CompleteTransition();
             return;
         }
         
-        // Interpola rotação se necessário
+        // Interpolate rotation if necessary
         Vector3 currentRotation = useRotation ? 
             Vector3.Lerp(transitionStartRotation, transitionTargetRotation, curveValue) :
             transform.eulerAngles;
         
-        // Aplica transformações apenas se não foi empurrada
+        // Apply transformations only if not pushed
         transform.position = currentPosition;
         if (useRotation)
             transform.eulerAngles = currentRotation;
     }
 
     /// <summary>
-    /// Completa a transição
+    /// Complete transition
     /// </summary>
     private void CompleteTransition()
     {
         isTransitioning = false;
         SetPositionImmediate(transitionTargetPosition, transitionTargetRotation);
         
-        // Como não pausamos física, não precisamos restaurar
-        // Comentado porque não alteramos isKinematic:
+        // Since we don't pause physics, we don't need to restore
+        // Commented because we don't change isKinematic:
         // if (hasPhysics)
         // {
         //     if (rb2D != null) rb2D.isKinematic = false;
@@ -332,7 +332,7 @@ public class DimensionBox : MonoBehaviour
     }
 
     /// <summary>
-    /// Força o salvamento da posição atual
+    /// Force save current position
     /// </summary>
     [ContextMenu("Salvar Posição Atual")]
     public void ForceSaveCurrentPosition()
@@ -341,7 +341,7 @@ public class DimensionBox : MonoBehaviour
     }
 
     /// <summary>
-    /// Reseta posições para a posição atual
+    /// Reset positions to current position
     /// </summary>
     [ContextMenu("Reset Posições")]
     public void ResetPositions()
@@ -360,15 +360,15 @@ public class DimensionBox : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: Posições resetadas para {currentPos}");
+            Debug.Log($"{gameObject.name}: Positions reset to {currentPos}");
         }
     }
 
     /// <summary>
-    /// Define posição específica para uma dimensão
+    /// Set specific position for a dimension
     /// </summary>
-    /// <param name="dimension">Dimensão alvo</param>
-    /// <param name="position">Nova posição</param>
+    /// <param name="dimension">Target dimension</param>
+    /// <param name="position">New position</param>
     public void SetPositionForDimension(DimensionType dimension, Vector3 position)
     {
         if (dimension == DimensionType.DimensionA)
@@ -380,7 +380,7 @@ public class DimensionBox : MonoBehaviour
             positionInDimensionB = position;
         }
         
-        // Se é a dimensão atual, aplica imediatamente
+        // If it's current dimension, apply immediately
         if (dimension == currentDimension)
         {
             ApplyDimensionPosition(dimension, false);
@@ -389,7 +389,7 @@ public class DimensionBox : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Remove inscrição dos eventos
+        // Remove event subscriptions
         DimensionManager.OnDimensionSwitched -= OnDimensionSwitched;
     }
 
@@ -398,7 +398,7 @@ public class DimensionBox : MonoBehaviour
         if (!showPositionGizmos)
             return;
             
-        // Desenha posições salvas para cada dimensão
+        // Draw saved positions for each dimension
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(positionInDimensionA, Vector3.one * 0.5f);
         Gizmos.DrawIcon(positionInDimensionA + Vector3.up * 0.8f, "d_winbtn_mac_max", true);
@@ -407,11 +407,11 @@ public class DimensionBox : MonoBehaviour
         Gizmos.DrawWireCube(positionInDimensionB, Vector3.one * 0.5f);
         Gizmos.DrawIcon(positionInDimensionB + Vector3.up * 0.8f, "d_winbtn_mac_max", true);
         
-        // Liga as posições com uma linha
+        // Connect positions with a line
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(positionInDimensionA, positionInDimensionB);
         
-        // Destaca a posição atual
+        // Highlight current position
         if (Application.isPlaying)
         {
             Gizmos.color = currentDimension == DimensionType.DimensionA ? Color.red : Color.blue;
