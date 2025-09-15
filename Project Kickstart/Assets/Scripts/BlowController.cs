@@ -58,8 +58,8 @@ public class BlowController : MonoBehaviour
                 Debug.Log("AddForce applied!");
                 
                 // Backup: apply velocity directly
-                rb.velocity += pushDirection * (pushForce / rb.mass);
-                Debug.Log($"Final velocity: {rb.velocity}");
+                rb.linearVelocity += pushDirection * (pushForce / rb.mass);
+                Debug.Log($"Final velocity: {rb.linearVelocity}");
             }
         }
     }
