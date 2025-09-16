@@ -60,6 +60,13 @@ public class BlowController : MonoBehaviour
                 // Backup: apply velocity directly
                 rb.linearVelocity += pushDirection * (pushForce / rb.mass);
                 Debug.Log($"Final velocity: {rb.linearVelocity}");
+                
+                // Play push sound
+                if (AudioManager.Instance != null)
+                {
+                    Debug.Log($"🔊 BlowController: Playing push sound for {rb.name}");
+                    AudioManager.Instance.PlayBoxPushSound(rb.transform.position, pushForce / 10f);
+                }
             }
         }
     }
