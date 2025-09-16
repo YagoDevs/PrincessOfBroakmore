@@ -4,23 +4,29 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Movement2: MonoBehaviour
 {
+    [Header("Adjustables")]
     public float moveForce = 10f;
     public float jumpForce = 7f;
-    public Transform groundCheck;
     public float groundDistance = 0.2f;
-    public LayerMask groundMask;
     public float maxSpeed = 6f;
     public float acceleration = 20f;
     public float deceleration = 40f;
     public float noInputDamping = 20f;
+
+    [Header("Variables")]
+    private bool isGrounded;
     private float currentMoveForce;
 
+    [Header("References")]
     private Rigidbody rb;
-    private bool isGrounded;
+    public LayerMask groundMask;
+    public Transform groundCheck;
+    [SerializeField] Animator animator;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        if (rb == null) Debug.LogError("Missing components in player");
         rb.freezeRotation = true;
         currentMoveForce = moveForce;
     }
@@ -100,6 +106,8 @@ public class Movement2: MonoBehaviour
             Vector3 damped = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, noInputDamping * Time.fixedDeltaTime);
             rb.linearVelocity = new Vector3(damped.x, rb.linearVelocity.y, damped.z);
         }
+
+        animator.SetFloat("Speed", maxSpeed);
     }
 
     void OnDrawGizmosSelected()
