@@ -2267,6 +2267,10 @@ MonoBehaviour:
   boxPushSounds:
   - {fileID: 8300000, guid: cfe1a7857036b1d488cb9d5c734c512b, type: 3}
   boxSlideSounds: []
+  dimensionSwitchSounds:
+  - {fileID: 8300000, guid: 3a2ce357d89a49945b4d6730e97ab21d, type: 3}
+  dimensionSwitchVolume: 0.8
+  dimensionSwitchDelay: 0
   maxAudioSources: 10
   showDebugInfo: 0
 --- !u!4 &1268999574
