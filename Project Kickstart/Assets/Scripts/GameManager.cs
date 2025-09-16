@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     GameObject endScreen;
 
     [SerializeField] SceneLights lights;
+    [SerializeField] DimensionManager dimManager;
 
     public UnityEvent enterManic = new UnityEvent();
     public UnityEvent exitManic = new UnityEvent();
@@ -30,6 +31,8 @@ public class GameManager : MonoBehaviour
     {
         print("manic");
         lights.LightsChange();
+        dimManager.SwitchDimension();
+        //SwitchDimension();
         //change color of lights
         //change vignette?
     }
