@@ -28,6 +28,11 @@ public class DimensionBox : MonoBehaviour
     [SerializeField] private float movementThreshold = 0.1f;
     [SerializeField] private float savePositionDelay = 0.5f;
     
+    [Header("Audio")]
+    [SerializeField] private bool enableAudio = true;
+    [SerializeField] private float minForceForSound = 0.1f;  // Mais sensível
+    [SerializeField] private float maxSoundCooldown = 0.5f;  // Mais tempo entre sons
+    
     [Header("Debug")]
     [SerializeField] private bool showDebugInfo = true;
     [SerializeField] private bool showPositionGizmos = true;
@@ -53,6 +58,10 @@ public class DimensionBox : MonoBehaviour
     
     // Automatic save system
     private Coroutine savePositionCoroutine;
+    
+    // Audio system
+    private float lastSoundTime = 0f;
+    private Vector3 lastVelocity = Vector3.zero;
 
     private void Awake()
     {
@@ -107,6 +116,7 @@ public class DimensionBox : MonoBehaviour
         if (canBeMoved)
         {
             DetectMovement();
+            DetectPushForAudio();
         }
     }
 
@@ -141,6 +151,70 @@ public class DimensionBox : MonoBehaviour
                 timeSinceLastMovement = 0f;
             }
         }
+    }
+
+    /// <summary>
+    /// Detecta empurrões para tocar som baseado na velocidade
+    /// </summary>
+    private void DetectPushForAudio()
+    {
+        if (!enableAudio)
+        {
+            if (showDebugInfo && Time.frameCount % 120 == 0) // Log a cada 2 segundos
+                Debug.Log($"{gameObject.name}: Audio disabled");
+            return;
+        }
+
+        if (!hasPhysics)
+        {
+            if (showDebugInfo && Time.frameCount % 120 == 0)
+                Debug.Log($"{gameObject.name}: No physics components");
+            return;
+        }
+
+        if (AudioManager.Instance == null)
+        {
+            if (showDebugInfo && Time.frameCount % 120 == 0)
+                Debug.Log($"{gameObject.name}: AudioManager not found");
+            return;
+        }
+
+        Vector3 currentVelocity = Vector3.zero;
+        
+        // Get current velocity from physics
+        if (rb3D != null)
+        {
+            currentVelocity = rb3D.linearVelocity;
+        }
+        else if (rb2D != null)
+        {
+            currentVelocity = rb2D.linearVelocity;
+        }
+
+        // Calculate force (change in velocity)
+        Vector3 velocityChange = currentVelocity - lastVelocity;
+        float force = velocityChange.magnitude;
+        
+        // Debug info (occasional)
+        if (showDebugInfo && force > 0.01f) // Log only when there's some movement
+        {
+            Debug.Log($"{gameObject.name}: Velocity={currentVelocity.magnitude:F2}, Force={force:F2}, MinForce={minForceForSound}, TimeSince={Time.time - lastSoundTime:F2}");
+        }
+
+        // Check if force is significant and enough time has passed
+        if (force > minForceForSound && Time.time - lastSoundTime > maxSoundCooldown)
+        {
+            // Play push sound
+            AudioManager.Instance.PlayBoxPushSound(transform.position, force);
+            lastSoundTime = Time.time;
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"🔊 {gameObject.name}: Push sound triggered with force {force:F2}");
+            }
+        }
+
+        lastVelocity = currentVelocity;
     }
 
     /// <summary>

@@ -2105,6 +2105,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 424182599}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1268999572
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1268999574}
+  - component: {fileID: 1268999573}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1268999573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268999572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd26e26d31ac2c24bb8489ad8c4483ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  masterVolume: 1
+  sfxVolume: 1
+  boxPushSounds:
+  - {fileID: 8300000, guid: cfe1a7857036b1d488cb9d5c734c512b, type: 3}
+  boxSlideSounds: []
+  maxAudioSources: 10
+  showDebugInfo: 0
+--- !u!4 &1268999574
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268999572}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.7387342, y: 3.3146648, z: 5.754163}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1349475084 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2f39d290b55aff440a1b6d860ac3c27a, type: 3}
@@ -2705,6 +2756,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   movementThreshold: 0.1
   savePositionDelay: 0.5
+  enableAudio: 1
+  minForceForSound: 0.5
+  maxSoundCooldown: 0.2
   showDebugInfo: 0
   showPositionGizmos: 1
 --- !u!1 &1655453406
@@ -2791,3 +2845,4 @@ SceneRoots:
   - {fileID: 486759709}
   - {fileID: 205378701}
   - {fileID: 424182599}
+  - {fileID: 1268999574}
