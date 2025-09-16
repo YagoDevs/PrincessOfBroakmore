@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     GameObject endScreen;
 
-    SceneLights lights;
+    [SerializeField] SceneLights lights;
 
     public UnityEvent enterManic = new UnityEvent();
     public UnityEvent exitManic = new UnityEvent();
