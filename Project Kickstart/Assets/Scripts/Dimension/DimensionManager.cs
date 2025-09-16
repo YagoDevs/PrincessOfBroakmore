@@ -87,6 +87,12 @@ public class DimensionManager : MonoBehaviour
             Debug.Log($"Dimension changed from {previousDimension} to {currentDimension}");
         }
         
+        // Play dimension switch sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayDimensionSwitchSound(previousDimension, currentDimension);
+        }
+        
         // Notify all objects about the change
         NotifyDimensionChange();
         NotifyDimensionSwitch(previousDimension, currentDimension);
@@ -107,6 +113,12 @@ public class DimensionManager : MonoBehaviour
         if (showDebugInfo)
         {
             Debug.Log($"Dimension set from {previousDimension} to {currentDimension}");
+        }
+        
+        // Play dimension switch sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayDimensionSwitchSound(previousDimension, currentDimension);
         }
         
         NotifyDimensionChange();

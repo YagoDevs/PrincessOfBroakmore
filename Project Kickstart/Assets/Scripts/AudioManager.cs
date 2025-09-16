@@ -15,6 +15,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip[] boxPushSounds;
     [SerializeField] private AudioClip[] boxSlideSounds;
     
+    [Header("Dimension Switch Sounds")]
+    [SerializeField] private AudioClip[] dimensionSwitchSounds;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume específico para sons de troca de dimensão (0.0 a 1.0)")]
+    private float dimensionSwitchVolume = 0.8f;
+    [SerializeField] [Range(0f, 2f)] [Tooltip("Delay antes de tocar o som de troca de dimensão (em segundos)")]
+    private float dimensionSwitchDelay = 0.0f;
+    
     [Header("Audio Sources")]
     [SerializeField] private int maxAudioSources = 10;
     
@@ -39,6 +46,19 @@ public class AudioManager : MonoBehaviour
     { 
         get => sfxVolume; 
         set => sfxVolume = Mathf.Clamp01(value); 
+    }
+    
+    // Dimension switch properties
+    public float DimensionSwitchVolume 
+    { 
+        get => dimensionSwitchVolume; 
+        set => dimensionSwitchVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float DimensionSwitchDelay 
+    { 
+        get => dimensionSwitchDelay; 
+        set => dimensionSwitchDelay = Mathf.Max(0f, value); 
     }
 
     private void Awake()
@@ -110,6 +130,22 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Test dimension switch sound with current settings
+    /// </summary>
+    [ContextMenu("Test Dimension Switch Sound")]
+    public void TestDimensionSwitchSound()
+    {
+        if (dimensionSwitchSounds == null || dimensionSwitchSounds.Length == 0)
+        {
+            Debug.LogWarning("No dimension switch sounds configured for testing!");
+            return;
+        }
+        
+        Debug.Log($"Testing dimension switch sound with Volume={dimensionSwitchVolume}, Delay={dimensionSwitchDelay}s");
+        PlayDimensionSwitchSound(DimensionType.DimensionA, DimensionType.DimensionB);
+    }
+
+    /// <summary>
     /// Initialize pool of audio sources
     /// </summary>
     private void InitializeAudioSources()
@@ -172,6 +208,93 @@ public class AudioManager : MonoBehaviour
         float volume = Mathf.Clamp01(velocity * 0.2f + 0.2f) * sfxVolume * masterVolume;
         
         PlaySoundAtPosition(clipToPlay, position, volume, 1f);
+    }
+
+    /// <summary>
+    /// Play dimension switch sound (2D sound for UI-like effect)
+    /// </summary>
+    /// <param name="fromDimension">Dimension being switched from</param>
+    /// <param name="toDimension">Dimension being switched to</param>
+    public void PlayDimensionSwitchSound(DimensionType fromDimension, DimensionType toDimension)
+    {
+        if (dimensionSwitchSounds == null || dimensionSwitchSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No dimension switch sounds configured!");
+            return;
+        }
+
+        if (dimensionSwitchDelay > 0f)
+        {
+            // Play with delay
+            StartCoroutine(PlayDimensionSwitchSoundDelayed(fromDimension, toDimension, dimensionSwitchDelay));
+        }
+        else
+        {
+            // Play immediately
+            PlayDimensionSwitchSoundInternal(fromDimension, toDimension);
+        }
+    }
+
+    /// <summary>
+    /// Internal coroutine to play dimension switch sound with delay
+    /// </summary>
+    private System.Collections.IEnumerator PlayDimensionSwitchSoundDelayed(DimensionType fromDimension, DimensionType toDimension, float delay)
+    {
+        if (showDebugInfo)
+        {
+            Debug.Log($"Dimension switch sound delayed by {delay}s: {fromDimension} → {toDimension}");
+        }
+        
+        yield return new WaitForSeconds(delay);
+        PlayDimensionSwitchSoundInternal(fromDimension, toDimension);
+    }
+
+    /// <summary>
+    /// Internal method to actually play the dimension switch sound
+    /// </summary>
+    private void PlayDimensionSwitchSoundInternal(DimensionType fromDimension, DimensionType toDimension)
+    {
+        // Select random switch sound
+        AudioClip clipToPlay = dimensionSwitchSounds[Random.Range(0, dimensionSwitchSounds.Length)];
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing dimension switch sound: {fromDimension} → {toDimension}");
+            Debug.Log($"Selected clip: {(clipToPlay != null ? clipToPlay.name : "NULL")}");
+        }
+        
+        // Play as 2D sound with configurable volume
+        float volume = dimensionSwitchVolume * sfxVolume * masterVolume;
+        float pitch = 1f;
+        
+        // Get available audio source
+        AudioSource audioSource = GetAvailableAudioSource();
+        if (audioSource == null)
+        {
+            Debug.LogWarning("No available audio sources for dimension switch!");
+            return;
+        }
+
+        // Configure as 2D sound (UI-like)
+        audioSource.transform.position = Vector3.zero;
+        audioSource.clip = clipToPlay;
+        audioSource.volume = volume;
+        audioSource.pitch = pitch;
+        audioSource.spatialBlend = 0f; // 2D sound
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
+        
+        // Play immediately
+        audioSource.Play();
+        activeAudioSources.Add(audioSource);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"✓ Dimension switch sound playing: Volume={volume}, Playing={audioSource.isPlaying}");
+        }
+        
+        // Return to pool when finished
+        StartCoroutine(ReturnAudioSourceToPool(audioSource, clipToPlay.length / pitch));
     }
 
     /// <summary>

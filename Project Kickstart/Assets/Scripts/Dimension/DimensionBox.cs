@@ -62,6 +62,7 @@ public class DimensionBox : MonoBehaviour
     // Audio system
     private float lastSoundTime = 0f;
     private Vector3 lastVelocity = Vector3.zero;
+    private bool isDimensionSwitching = false;
 
     private void Awake()
     {
@@ -158,10 +159,10 @@ public class DimensionBox : MonoBehaviour
     /// </summary>
     private void DetectPushForAudio()
     {
-        if (!enableAudio)
+        if (!enableAudio || isDimensionSwitching)
         {
             if (showDebugInfo && Time.frameCount % 120 == 0) // Log a cada 2 segundos
-                Debug.Log($"{gameObject.name}: Audio disabled");
+                Debug.Log($"{gameObject.name}: Audio disabled or dimension switching");
             return;
         }
 
@@ -258,12 +259,39 @@ public class DimensionBox : MonoBehaviour
             isBeingMoved = false;
         }
         
+        // Disable audio detection during dimension switch
+        isDimensionSwitching = true;
+        
         currentDimension = toDimension;
         ApplyDimensionPosition(toDimension, useTransitionAnimation);
+        
+        // Re-enable audio after transition completes
+        float audioDisableTime = useTransitionAnimation ? transitionDuration + 0.2f : 0.3f;
+        StartCoroutine(ReEnableAudioAfterDelay(audioDisableTime));
         
         if (showDebugInfo)
         {
             Debug.Log($"{gameObject.name}: Dimension changed from {fromDimension} to {toDimension}");
+        }
+    }
+
+    /// <summary>
+    /// Re-enable audio detection after dimension switch delay
+    /// </summary>
+    private System.Collections.IEnumerator ReEnableAudioAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isDimensionSwitching = false;
+        
+        // Reset velocity tracking to avoid false positives
+        if (rb3D != null)
+            lastVelocity = rb3D.linearVelocity;
+        else if (rb2D != null)
+            lastVelocity = rb2D.linearVelocity;
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"{gameObject.name}: Audio detection re-enabled after dimension switch");
         }
     }
 
