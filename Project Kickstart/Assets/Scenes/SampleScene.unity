@@ -1934,15 +1934,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveForce: 10
   jumpForce: 4
-  groundCheck: {fileID: 2092458791}
   groundDistance: 0.2
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
   maxSpeed: 6
   acceleration: 20
   deceleration: 40
   noInputDamping: 20
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheck: {fileID: 2092458791}
+  animator: {fileID: 0}
 --- !u!1 &1187698200
 GameObject:
   m_ObjectHideFlags: 0
@@ -2936,6 +2937,7 @@ GameObject:
   - component: {fileID: 2082283608}
   - component: {fileID: 2082283607}
   - component: {fileID: 2082283606}
+  - component: {fileID: 2082283610}
   m_Layer: 0
   m_Name: MIrror
   m_TagString: Untagged
@@ -3033,6 +3035,24 @@ Transform:
   - {fileID: 210781898}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2082283610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082283605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff87d11ac7bd03643943bb07f5bc54f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerRadius: 3
+  enableDebug: 1
+  useAnimation: 0
+  dimensionSwitchAnimationTrigger: DimensionSwitch
+  animationDuration: 1
+  cooldownTime: 2
 --- !u!1 &2092458790
 GameObject:
   m_ObjectHideFlags: 0
