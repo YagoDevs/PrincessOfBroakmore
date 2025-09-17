@@ -3047,7 +3047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff87d11ac7bd03643943bb07f5bc54f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerRadius: 3
+  triggerRadius: 1.5
   enableDebug: 1
   useAnimation: 0
   dimensionSwitchAnimationTrigger: DimensionSwitch
