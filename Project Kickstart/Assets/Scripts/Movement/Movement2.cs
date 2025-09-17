@@ -107,7 +107,16 @@ public class Movement2: MonoBehaviour
             rb.linearVelocity = new Vector3(damped.x, rb.linearVelocity.y, damped.z);
         }
 
-        animator.SetFloat("Speed", maxSpeed);
+        // Calculate if moving to alternate between idle and running
+        Vector3 animatorVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        float currentSpeed = animatorVelocity.magnitude;
+        
+        // Threshold mais alto para evitar animação tremulante
+        float speedThreshold = 0.5f;
+        bool isRunning = currentSpeed > speedThreshold;
+        
+        // Send state to Animator
+        animator.SetBool("IsRunning", isRunning);
     }
 
     void OnDrawGizmosSelected()
