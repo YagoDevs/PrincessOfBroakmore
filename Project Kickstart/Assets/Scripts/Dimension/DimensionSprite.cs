@@ -27,7 +27,7 @@ public class DimensionSprite : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private bool isTransitioning = false;
     
-    // Variáveis para animação
+    // Animation variables
     private float transitionTimer = 0f;
     private Sprite targetSprite;
     private Color targetColor;
@@ -39,24 +39,24 @@ public class DimensionSprite : MonoBehaviour
 
     private void Start()
     {
-        // Se o DimensionManager já existe, aplica a dimensão atual imediatamente
+        // If DimensionManager already exists, apply current dimension immediately
         if (DimensionManager.Instance != null)
         {
             ApplyDimensionSprite(DimensionManager.Instance.CurrentDimension, false);
         }
         
-        // Inscreve-se no evento de mudança de dimensão
+        // Subscribe to dimension change event
         DimensionManager.OnDimensionChanged += OnDimensionChanged;
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: DimensionSprite iniciado");
+            Debug.Log($"{gameObject.name}: DimensionSprite initialized");
         }
     }
 
     private void Update()
     {
-        // Processa animação de transição se estiver ativa
+        // Process transition animation if active
         if (isTransitioning && useTransitionAnimation)
         {
             ProcessTransition();
@@ -73,7 +73,7 @@ public class DimensionSprite : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: Dimensão mudou para {newDimension}");
+            Debug.Log($"{gameObject.name}: Dimension changed to {newDimension}");
         }
     }
 
@@ -81,16 +81,16 @@ public class DimensionSprite : MonoBehaviour
     /// Apply sprite and color corresponding to dimension
     /// </summary>
     /// <param name="dimension">Dimension to apply</param>
-    /// <param name="animated">Se deve usar animação de transição</param>
+    /// <param name="animated">Whether to use transition animation</param>
     private void ApplyDimensionSprite(DimensionType dimension, bool animated = true)
     {
-        // Determina o sprite e cor para a dimensão
+        // Determine sprite and color for the dimension
         Sprite newSprite = dimension == DimensionType.DimensionA ? spriteForDimensionA : spriteForDimensionB;
         Color newColor = changeColor ? 
             (dimension == DimensionType.DimensionA ? colorForDimensionA : colorForDimensionB) : 
             spriteRenderer.color;
 
-        // Verifica se há mudança necessária
+        // Check if change is necessary
         if (spriteRenderer.sprite == newSprite && spriteRenderer.color == newColor)
             return;
 
@@ -100,7 +100,7 @@ public class DimensionSprite : MonoBehaviour
         }
         else
         {
-            // Aplicação imediata
+            // Immediate application
             spriteRenderer.sprite = newSprite;
             if (changeColor)
             {
@@ -110,15 +110,15 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Inicia uma transição animada para o novo sprite/cor
+    /// Start an animated transition to new sprite/color
     /// </summary>
-    /// <param name="newSprite">Novo sprite</param>
-    /// <param name="newColor">Nova cor</param>
+    /// <param name="newSprite">New sprite</param>
+    /// <param name="newColor">New color</param>
     private void StartTransition(Sprite newSprite, Color newColor)
     {
         if (isTransitioning)
         {
-            // Se já está em transição, completa a atual imediatamente
+            // If already transitioning, complete current transition immediately
             CompleteTransition();
         }
 
@@ -129,7 +129,7 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Processa a animação de transição
+    /// Process transition animation
     /// </summary>
     private void ProcessTransition()
     {
@@ -142,22 +142,22 @@ public class DimensionSprite : MonoBehaviour
             return;
         }
 
-        // Aplica curva de animação
+        // Apply animation curve
         float curveValue = transitionCurve.Evaluate(progress);
 
-        // Animação de fade para trocar sprite no meio da transição
+        // Fade animation to swap sprite in the middle of transition
         if (progress >= 0.5f && spriteRenderer.sprite != targetSprite)
         {
             spriteRenderer.sprite = targetSprite;
         }
 
-        // Interpola a cor se necessário
+        // Interpolate color if necessary
         if (changeColor)
         {
             Color startColor = progress < 0.5f ? spriteRenderer.color : targetColor;
             Color endColor = targetColor;
             
-            // Fade out e fade in
+            // Fade out and fade in
             float alpha = progress < 0.5f ? 
                 Mathf.Lerp(1f, 0f, curveValue * 2f) : 
                 Mathf.Lerp(0f, 1f, (curveValue - 0.5f) * 2f);
@@ -168,7 +168,7 @@ public class DimensionSprite : MonoBehaviour
         }
         else
         {
-            // Apenas fade do sprite
+            // Only sprite fade
             float alpha = progress < 0.5f ? 
                 Mathf.Lerp(1f, 0f, curveValue * 2f) : 
                 Mathf.Lerp(0f, 1f, (curveValue - 0.5f) * 2f);
@@ -180,7 +180,7 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Completa a transição e restaura valores finais
+    /// Complete transition and restore final values
     /// </summary>
     private void CompleteTransition()
     {
@@ -202,7 +202,7 @@ public class DimensionSprite : MonoBehaviour
     /// <summary>
     /// Force immediate application of current dimension
     /// </summary>
-    [ContextMenu("Aplicar Dimensão Atual")]
+    [ContextMenu("Apply Current Dimension")]
     public void ForceApplyCurrentDimension()
     {
         if (DimensionManager.Instance != null)
@@ -212,24 +212,24 @@ public class DimensionSprite : MonoBehaviour
     }
 
     /// <summary>
-    /// Valida se os sprites foram configurados corretamente
+    /// Validate if sprites were configured correctly
     /// </summary>
     private void OnValidate()
     {
         if (spriteForDimensionA == null)
         {
-            Debug.LogWarning($"{gameObject.name}: Sprite para Dimensão A não foi definido!");
+            Debug.LogWarning($"{gameObject.name}: Sprite for Dimension A was not defined!");
         }
         
         if (spriteForDimensionB == null)
         {
-            Debug.LogWarning($"{gameObject.name}: Sprite para Dimensão B não foi definido!");
+            Debug.LogWarning($"{gameObject.name}: Sprite for Dimension B was not defined!");
         }
     }
 
     private void OnDestroy()
     {
-        // Remove inscrição do evento ao destruir
+        // Remove event subscription when destroying
         DimensionManager.OnDimensionChanged -= OnDimensionChanged;
     }
 }
