@@ -268,6 +268,30 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 1.51
       objectReference: {fileID: 0}
+    - target: {fileID: 2717713850864382637, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: Camera
+      value: 
+      objectReference: {fileID: 585916945}
+    - target: {fileID: 2727242447674030530, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 5865593130463836482, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: m_Height
+      value: 3.3232214
+      objectReference: {fileID: 0}
+    - target: {fileID: 5865593130463836482, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: m_Center.y
+      value: 0.15078148
+      objectReference: {fileID: 0}
+    - target: {fileID: 6350190205745802000, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: m_Size.y
+      value: 26.570896
+      objectReference: {fileID: 0}
+    - target: {fileID: 6350190205745802000, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
+      propertyPath: m_Center.y
+      value: -9.06556
+      objectReference: {fileID: 0}
     - target: {fileID: 6831043160820709318, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
       propertyPath: animator
       value: 
@@ -1548,6 +1572,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff87d11ac7bd03643943bb07f5bc54f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  triggerRadius: 3
+  enableDebug: 1
+  useAnimation: 0
+  dimensionSwitchAnimationTrigger: DimensionSwitch
+  animationDuration: 1
+  cooldownTime: 2
 --- !u!65 &2044302674
 BoxCollider:
   m_ObjectHideFlags: 0
