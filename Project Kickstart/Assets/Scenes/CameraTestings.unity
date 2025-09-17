@@ -1548,6 +1548,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff87d11ac7bd03643943bb07f5bc54f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  triggerRadius: 3
+  enableDebug: 1
+  useAnimation: 0
+  dimensionSwitchAnimationTrigger: DimensionSwitch
+  animationDuration: 1
+  cooldownTime: 2
 --- !u!65 &2044302674
 BoxCollider:
   m_ObjectHideFlags: 0
