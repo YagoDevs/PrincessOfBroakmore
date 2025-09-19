@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class GuardMovement : MonoBehaviour
+public class GuardMovementCharge : MonoBehaviour
 {
-    public enum GuardState { Patrolling, Charging, Returning }
+    public enum GuardState { Patrolling, Chasing, Returning }
     private GuardState currentState = GuardState.Patrolling;
 
+    [Header("Movement")]
     public NavMeshAgent agent;
     public List<Transform> waypoints;
     public bool loop = true;
@@ -14,18 +15,14 @@ public class GuardMovement : MonoBehaviour
     private int currentIndex = 0;
     private Vector3 lastPatrolPosition;
 
+    [Header("Vision")]
     public Transform eyes;
     public float viewRadius = 8f;
     public float viewAngle = 60f;
     public LayerMask targetMask;
     public LayerMask obstacleMask;
 
-    public float chargeSpeed = 10f;
-    public float chargeDuration = 1.5f;
-
     private Transform currentTarget;
-    private Vector3 chargeDirection;
-    private float chargeTimer;
 
     void Start()
     {
@@ -44,8 +41,8 @@ public class GuardMovement : MonoBehaviour
                 Patrol();
                 DetectTargets();
                 break;
-            case GuardState.Charging:
-                Charge();
+            case GuardState.Chasing:
+                ChaseTarget();
                 break;
             case GuardState.Returning:
                 ReturnToPatrol();
@@ -67,7 +64,6 @@ public class GuardMovement : MonoBehaviour
     {
         if (target != null)
         {
-            agent.isStopped = false;
             agent.SetDestination(target.position);
         }
     }
@@ -102,32 +98,33 @@ public class GuardMovement : MonoBehaviour
                 {
                     currentTarget = target.transform;
                     lastPatrolPosition = transform.position;
-                    chargeDirection = dirToTarget;
-                    chargeTimer = chargeDuration;
-                    agent.isStopped = true;
-                    currentState = GuardState.Charging;
+                    currentState = GuardState.Chasing;
                     return;
                 }
             }
         }
     }
 
-    void Charge()
+    void ChaseTarget()
     {
-        if (chargeTimer > 0)
+        if (currentTarget == null)
         {
-            transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
-            chargeTimer -= Time.deltaTime;
+            currentState = GuardState.Returning;
+            return;
         }
-        else
+
+        agent.SetDestination(currentTarget.position);
+
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+        if (distanceToTarget > viewRadius * 1.5f)
         {
+            currentTarget = null;
             currentState = GuardState.Returning;
         }
     }
 
     void ReturnToPatrol()
     {
-        agent.isStopped = false;
         agent.SetDestination(lastPatrolPosition);
 
         if (!agent.pathPending && agent.remainingDistance <= stoppingDistance)
