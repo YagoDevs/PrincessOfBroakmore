@@ -111,7 +111,7 @@ public class Movement2: MonoBehaviour
         Vector3 animatorVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         float currentSpeed = animatorVelocity.magnitude;
         
-        // Threshold mais alto para evitar animação tremulante
+        //Threshold mais alto para evitar animação tremulante
         float speedThreshold = 0.5f;
         bool isRunning = currentSpeed > speedThreshold;
         
