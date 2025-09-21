@@ -3790,6 +3790,11 @@ MonoBehaviour:
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   lightEffect: {fileID: 0}
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
+  lightIntensity: 2
+  particleDensity: 50
   isActivated: 0
   autoActivateOnStart: 0
   autoChainActivation: 0
@@ -3825,6 +3830,11 @@ MonoBehaviour:
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   lightEffect: {fileID: 0}
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
+  lightIntensity: 2
+  particleDensity: 50
   isActivated: 0
   autoActivateOnStart: 0
   autoChainActivation: 0
@@ -8312,6 +8322,11 @@ MonoBehaviour:
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   lightEffect: {fileID: 0}
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
+  lightIntensity: 2
+  particleDensity: 50
   isActivated: 0
   autoActivateOnStart: 0
   autoChainActivation: 0
@@ -10784,7 +10799,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetFlower: {fileID: 1269412924}
   lineRenderer: {fileID: 0}
-  lightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightColor: {r: 0.8773585, g: 0.8256062, b: 0.55869526, a: 1}
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   torchLight: {fileID: 0}
@@ -10794,7 +10809,10 @@ MonoBehaviour:
   flickerEffect: 1
   flameParticles: {fileID: 0}
   createFlameEffect: 1
-  autoEmitOnStart: 0
+  autoEmitOnStart: 1
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
 --- !u!1 &1688336974 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 026aa322362d17147a215fac2c0ca21e, type: 3}
@@ -10827,6 +10845,11 @@ MonoBehaviour:
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   lightEffect: {fileID: 0}
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
+  lightIntensity: 2
+  particleDensity: 50
   isActivated: 0
   autoActivateOnStart: 0
   autoChainActivation: 0
@@ -12334,6 +12357,11 @@ MonoBehaviour:
   lineWidth: 0.1
   lineMaterial: {fileID: 0}
   lightEffect: {fileID: 0}
+  useVolumetricLight: 1
+  volumeLayers: 5
+  maxVolumeWidth: 0.5
+  lightIntensity: 2
+  particleDensity: 50
   isActivated: 0
   autoActivateOnStart: 0
   autoChainActivation: 0
