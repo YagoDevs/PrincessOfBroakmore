@@ -14,6 +14,7 @@ public class Flower : MonoBehaviour
     
     [Header("Estado da Flor")]
     [SerializeField] private bool isActivated = false;
+    [SerializeField] private bool autoActivateOnStart = false; // Se deve ativar automaticamente no início
 
     private void Start()
     {
@@ -22,7 +23,13 @@ public class Flower : MonoBehaviour
         // Desativa o efeito de luz inicialmente
         if (lightEffect != null)
         {
-            lightEffect.SetActive(false);
+            lightEffect.SetActive(isActivated);
+        }
+        
+        // Se autoActivateOnStart estiver marcado, ativa a flor
+        if (autoActivateOnStart && !isActivated)
+        {
+            ReceiveLight();
         }
     }
 
