@@ -6,6 +6,12 @@ public class Flower : MonoBehaviour
     [SerializeField] private Transform currentTarget;
     [SerializeField] private LineRenderer lineRenderer;
     
+    [Header("Múltiplas Direções")]
+    [SerializeField] private Transform nextFlowerTarget; // Direção para próxima flor
+    [SerializeField] private Transform objectTarget1; // Direção para objeto 1
+    [SerializeField] private Transform objectTarget2; // Direção para objeto 2
+    [SerializeField] private int currentDirectionIndex = 0; // Índice da direção atual (0=flor, 1=obj1, 2=obj2)
+    
     [Header("Configurações Visuais")]
     [SerializeField] private Color lightColor = Color.cyan;
     [SerializeField] private float lineWidth = 0.1f;
@@ -26,6 +32,9 @@ public class Flower : MonoBehaviour
         {
             lightEffect.SetActive(isActivated);
         }
+        
+        // Configura o alvo inicial baseado na direção atual
+        UpdateCurrentTarget();
         
         // Se autoActivateOnStart estiver marcado, ativa a flor
         if (autoActivateOnStart && !isActivated)
@@ -158,7 +167,74 @@ public class Flower : MonoBehaviour
         }
     }
 
+    // Método para atualizar o alvo atual baseado na direção
+    private void UpdateCurrentTarget()
+    {
+        Transform newTarget = null;
+        
+        switch (currentDirectionIndex)
+        {
+            case 0:
+                newTarget = nextFlowerTarget;
+                Debug.Log($"Flor {gameObject.name}: Direção mudada para PRÓXIMA FLOR ({(nextFlowerTarget != null ? nextFlowerTarget.name : "null")})");
+                break;
+            case 1:
+                newTarget = objectTarget1;
+                Debug.Log($"Flor {gameObject.name}: Direção mudada para OBJETO 1 ({(objectTarget1 != null ? objectTarget1.name : "null")})");
+                break;
+            case 2:
+                newTarget = objectTarget2;
+                Debug.Log($"Flor {gameObject.name}: Direção mudada para OBJETO 2 ({(objectTarget2 != null ? objectTarget2.name : "null")})");
+                break;
+        }
+        
+        currentTarget = newTarget;
+        
+        // Se a flor já está ativa, atualiza a linha de luz
+        if (isActivated)
+        {
+            EmitLightToTarget();
+        }
+    }
+    
+    // Método para ciclar para a próxima direção
+    public void CycleToNextDirection()
+    {
+        currentDirectionIndex = (currentDirectionIndex + 1) % 3; // Cicla entre 0, 1, 2
+        UpdateCurrentTarget();
+        Debug.Log($"Flor {gameObject.name}: Ciclou para direção {currentDirectionIndex}");
+    }
+    
+    // Método para definir uma direção específica
+    public void SetDirection(int directionIndex)
+    {
+        if (directionIndex >= 0 && directionIndex <= 2)
+        {
+            currentDirectionIndex = directionIndex;
+            UpdateCurrentTarget();
+            Debug.Log($"Flor {gameObject.name}: Direção definida para {currentDirectionIndex}");
+        }
+        else
+        {
+            Debug.LogWarning($"Flor {gameObject.name}: Índice de direção inválido: {directionIndex}");
+        }
+    }
+    
     // Propriedades para acesso externo
     public bool IsActivated => isActivated;
     public Transform CurrentTarget => currentTarget;
+    public int CurrentDirectionIndex => currentDirectionIndex;
+    public string CurrentDirectionName
+    {
+        get
+        {
+            switch (currentDirectionIndex)
+            {
+                case 0: return "Próxima Flor";
+                case 1: return "Objeto 1";
+                case 2: return "Objeto 2";
+                default: return "Desconhecido";
+            }
+        }
+    }
 }

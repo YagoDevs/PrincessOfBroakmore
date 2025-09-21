@@ -12,6 +12,10 @@ public class Platform : MonoBehaviour
     [SerializeField] private Flower targetFlower; // Flor que vai receber luz
     [SerializeField] private bool useDirectFlowerConnection = false; // Se deve usar conexão direta ao invés da tocha
     
+    [Header("Sistema de Ciclo de Direções")]
+    [SerializeField] private Flower flowerToCycle; // Flor que vai ter sua direção alterada
+    [SerializeField] private bool useCycleMode = false; // Se deve usar modo de ciclo
+    
     [Header("Configurações de Interação")]
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private bool isActivated = false;
@@ -125,7 +129,27 @@ public class Platform : MonoBehaviour
         isActivated = true;
         Debug.Log($"[PLATFORM DEBUG] Estado alterado para ativado");
         
-        if (useDirectFlowerConnection)
+        if (useCycleMode)
+        {
+            // Modo: Ciclo de direções da flor
+            if (flowerToCycle == null)
+            {
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flor para ciclo não configurada!");
+                return;
+            }
+            
+            // Cicla para a próxima direção
+            flowerToCycle.CycleToNextDirection();
+            Debug.Log($"[PLATFORM DEBUG] Flor {flowerToCycle.name} ciclou para direção: {flowerToCycle.CurrentDirectionName}");
+            
+            // Se a flor não estiver ativa, ativa ela
+            if (!flowerToCycle.IsActivated)
+            {
+                flowerToCycle.ReceiveLight();
+                Debug.Log($"[PLATFORM DEBUG] Flor {flowerToCycle.name} ativada");
+            }
+        }
+        else if (useDirectFlowerConnection)
         {
             // Modo: Conexão direta entre flores
             if (sourceFlower == null || targetFlower == null)
@@ -175,7 +199,13 @@ public class Platform : MonoBehaviour
     {
         isActivated = false;
         
-        if (useDirectFlowerConnection)
+        if (useCycleMode)
+        {
+            // Modo: Ciclo de direções - NÃO faz nada ao sair
+            Debug.Log($"Plataforma {gameObject.name} desativada! Modo ciclo - mantendo direção atual da flor {flowerToCycle?.name}");
+            // Não reseta a direção da flor!
+        }
+        else if (useDirectFlowerConnection)
         {
             // Modo: Conexão direta entre flores
             if (sourceFlower != null)
