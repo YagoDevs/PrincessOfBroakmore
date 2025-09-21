@@ -9,7 +9,6 @@ public class DimensionBox : MonoBehaviour
 {
     [Header("Box Settings")]
     [SerializeField] private bool canBeMoved = true;
-    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private bool usePhysics = true;
     
     [Header("Positions per Dimension")]
