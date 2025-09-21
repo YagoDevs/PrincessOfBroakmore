@@ -15,6 +15,7 @@ public class Flower : MonoBehaviour
     [Header("Estado da Flor")]
     [SerializeField] private bool isActivated = false;
     [SerializeField] private bool autoActivateOnStart = false; // Se deve ativar automaticamente no início
+    [SerializeField] private bool autoChainActivation = false; // Se deve ativar automaticamente a próxima flor
 
     private void Start()
     {
@@ -85,11 +86,16 @@ public class Flower : MonoBehaviour
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, currentTarget.position);
 
-        // Se o alvo for outra flor, ativa ela
+        // Se o alvo for outra flor E autoChainActivation estiver ativo, ativa ela
         Flower nextFlower = currentTarget.GetComponent<Flower>();
-        if (nextFlower != null)
+        if (nextFlower != null && autoChainActivation)
         {
             nextFlower.ReceiveLight();
+            Debug.Log($"Flor {gameObject.name}: Ativou automaticamente a próxima flor {nextFlower.name}");
+        }
+        else if (nextFlower != null && !autoChainActivation)
+        {
+            Debug.Log($"Flor {gameObject.name}: Emitindo luz para {nextFlower.name}, mas não ativando automaticamente");
         }
         else
         {

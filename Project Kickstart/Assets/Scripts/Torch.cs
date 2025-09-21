@@ -22,6 +22,9 @@ public class Torch : MonoBehaviour
     [SerializeField] private ParticleSystem flameParticles; // Partículas da chama
     [SerializeField] private bool createFlameEffect = true;
     
+    [Header("Controle de Ativação")]
+    [SerializeField] private bool autoEmitOnStart = true; // Se deve emitir luz automaticamente no início
+    
     // Variáveis para efeito de tremulação
     private float originalIntensity;
     private float flickerTime;
@@ -31,7 +34,12 @@ public class Torch : MonoBehaviour
         ConfigureLineRenderer();
         SetupTorchLight();
         SetupFlameEffect();
-        EmitLight();
+        
+        // Só emite luz se autoEmitOnStart estiver marcado
+        if (autoEmitOnStart)
+        {
+            EmitLight();
+        }
     }
 
     private void ConfigureLineRenderer()
@@ -100,6 +108,15 @@ public class Torch : MonoBehaviour
         targetFlower = newTarget;
         EmitLight();
     }
+    
+    // Método para ativar a tocha manualmente
+    public void ActivateTorch()
+    {
+        EmitLight();
+    }
+    
+    // Propriedade para acessar o alvo atual
+    public Transform CurrentTarget => targetFlower;
 
     private void SetupTorchLight()
     {

@@ -4,8 +4,13 @@ using UnityEngine;
 public class Platform : MonoBehaviour
 {
     [Header("Configurações da Plataforma")]
-    [SerializeField] private Flower flower; // Referência à flor que ela controla
-    [SerializeField] private Transform newTarget; // Novo alvo para a flor quando ativada
+    [SerializeField] private Torch torch; // Referência à tocha que ela controla
+    [SerializeField] private Transform newTarget; // Novo alvo para a tocha quando ativada
+    
+    [Header("Conexão Direta de Flores")]
+    [SerializeField] private Flower sourceFlower; // Flor que vai emitir luz
+    [SerializeField] private Flower targetFlower; // Flor que vai receber luz
+    [SerializeField] private bool useDirectFlowerConnection = false; // Se deve usar conexão direta ao invés da tocha
     
     [Header("Configurações de Interação")]
     [SerializeField] private string playerTag = "Player";
@@ -24,7 +29,8 @@ public class Platform : MonoBehaviour
     [SerializeField] private float animationSpeed = 5f; // Velocidade da animação
     
     private Renderer platformRenderer;
-    private Transform originalFlowerTarget; // Armazena o alvo original da flor
+    private Transform originalTorchTarget; // Armazena o alvo original da tocha
+    private Transform originalSourceTarget; // Armazena o alvo original da flor fonte
     private Vector3 originalPosition; // Posição original da plataforma
     private Vector3 targetPosition; // Posição alvo da plataforma
     private bool isMoving = false; // Se está se movendo
@@ -46,10 +52,16 @@ public class Platform : MonoBehaviour
         // Obtém o renderer para mudanças visuais
         platformRenderer = GetComponent<Renderer>();
         
-        // Armazena o alvo original da flor
-        if (flower != null)
+        // Armazena o alvo original da tocha
+        if (torch != null)
         {
-            originalFlowerTarget = flower.CurrentTarget;
+            originalTorchTarget = torch.CurrentTarget;
+        }
+        
+        // Armazena o alvo original da flor fonte
+        if (sourceFlower != null)
+        {
+            originalSourceTarget = sourceFlower.CurrentTarget;
         }
         
         // Armazena a posição original
@@ -110,18 +122,42 @@ public class Platform : MonoBehaviour
     {
         Debug.Log($"[PLATFORM DEBUG] Tentando ativar plataforma {gameObject.name}");
         
-        if (flower == null)
-        {
-            Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flor não configurada!");
-            return;
-        }
-
         isActivated = true;
         Debug.Log($"[PLATFORM DEBUG] Estado alterado para ativado");
         
-        // Muda o alvo da flor
-        flower.ChangeTarget(newTarget);
-        Debug.Log($"[PLATFORM DEBUG] Flor redirecionada para: {(newTarget != null ? newTarget.name : "null")}");
+        if (useDirectFlowerConnection)
+        {
+            // Modo: Conexão direta entre flores
+            if (sourceFlower == null || targetFlower == null)
+            {
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flores não configuradas para conexão direta!");
+                return;
+            }
+            
+            // Muda o alvo da flor fonte para a flor destino
+            sourceFlower.ChangeTarget(targetFlower.transform);
+            Debug.Log($"[PLATFORM DEBUG] Flor {sourceFlower.name} redirecionada para: {targetFlower.name}");
+            
+            // Ativa a flor fonte se ela não estiver ativa
+            if (!sourceFlower.IsActivated)
+            {
+                sourceFlower.ReceiveLight();
+                Debug.Log($"[PLATFORM DEBUG] Flor {sourceFlower.name} ativada");
+            }
+        }
+        else
+        {
+            // Modo: Controle da tocha
+            if (torch == null)
+            {
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Tocha não configurada!");
+                return;
+            }
+            
+            // Muda o alvo da tocha
+            torch.SetTargetFlower(newTarget);
+            Debug.Log($"[PLATFORM DEBUG] Tocha redirecionada para: {(newTarget != null ? newTarget.name : "null")}");
+        }
         
         // Abaixa a plataforma
         targetPosition = originalPosition - Vector3.up * depthOffset;
@@ -137,12 +173,28 @@ public class Platform : MonoBehaviour
 
     private void DeactivatePlatform()
     {
-        if (flower == null) return;
-
         isActivated = false;
         
-        // Restaura o alvo original da flor
-        flower.ChangeTarget(originalFlowerTarget);
+        if (useDirectFlowerConnection)
+        {
+            // Modo: Conexão direta entre flores
+            if (sourceFlower != null)
+            {
+                // Restaura o alvo original da flor fonte
+                sourceFlower.ChangeTarget(originalSourceTarget);
+                Debug.Log($"Plataforma {gameObject.name} desativada! Flor {sourceFlower.name} restaurada para alvo original.");
+            }
+        }
+        else
+        {
+            // Modo: Controle da tocha
+            if (torch != null)
+            {
+                // Restaura o alvo original da tocha
+                torch.SetTargetFlower(originalTorchTarget);
+                Debug.Log($"Plataforma {gameObject.name} desativada! Tocha restaurada para alvo original.");
+            }
+        }
         
         // Volta a plataforma para a posição original
         targetPosition = originalPosition;
@@ -150,8 +202,6 @@ public class Platform : MonoBehaviour
         
         // Atualiza visual
         UpdateVisualState();
-        
-        Debug.Log($"Plataforma {gameObject.name} desativada! Flor restaurada para alvo original.");
     }
 
     private void UpdateVisualState()
@@ -193,13 +243,13 @@ public class Platform : MonoBehaviour
         }
     }
 
-    // Método para configurar a flor via script
-    public void SetFlower(Flower newFlower)
+    // Método para configurar a tocha via script
+    public void SetTorch(Torch newTorch)
     {
-        flower = newFlower;
-        if (flower != null)
+        torch = newTorch;
+        if (torch != null)
         {
-            originalFlowerTarget = flower.CurrentTarget;
+            originalTorchTarget = torch.CurrentTarget;
         }
     }
 
@@ -209,9 +259,9 @@ public class Platform : MonoBehaviour
         newTarget = target;
         
         // Se a plataforma já está ativada, atualiza imediatamente
-        if (isActivated && flower != null)
+        if (isActivated && torch != null)
         {
-            flower.ChangeTarget(newTarget);
+            torch.SetTargetFlower(newTarget);
         }
     }
 
@@ -269,6 +319,6 @@ public class Platform : MonoBehaviour
 
     // Propriedades para acesso externo
     public bool IsActivated => isActivated;
-    public Flower AssociatedFlower => flower;
+    public Torch AssociatedTorch => torch;
     public Transform NewTarget => newTarget;
 }
