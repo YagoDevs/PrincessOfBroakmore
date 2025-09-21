@@ -54,10 +54,16 @@ public class Movement2: MonoBehaviour
     {
         Vector3 direction = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;
-        if (Input.GetKey(KeyCode.S)) direction += Vector3.back;
-        if (Input.GetKey(KeyCode.A)) direction += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) direction += Vector3.right;
+        if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;   // W = Para frente
+        if (Input.GetKey(KeyCode.S)) direction += Vector3.back;      // S = Para trás  
+        if (Input.GetKey(KeyCode.A)) direction += Vector3.left;      // A = Para esquerda
+        if (Input.GetKey(KeyCode.D)) direction += Vector3.right;     // D = Para direita
+        
+        // Debug: Mostrar direção quando pressionar teclas
+        if (direction != Vector3.zero)
+        {
+            Debug.Log($"[MOVEMENT] Direção: {direction} - W:{Input.GetKey(KeyCode.W)} S:{Input.GetKey(KeyCode.S)} A:{Input.GetKey(KeyCode.A)} D:{Input.GetKey(KeyCode.D)}");
+        }
 
         if (direction != Vector3.zero)
         {
