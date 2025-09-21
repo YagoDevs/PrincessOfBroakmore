@@ -13,7 +13,7 @@ public class Flower : MonoBehaviour
     [SerializeField] private int currentDirectionIndex = 0; // Índice da direção atual (0=flor, 1=obj1, 2=obj2)
     
     [Header("Configurações Visuais")]
-    [SerializeField] private Color lightColor = Color.cyan;
+    [SerializeField] private Color lightColor = Color.white;
     [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private Material lineMaterial;
     [SerializeField] private GameObject lightEffect; // Efeito visual quando ativada
