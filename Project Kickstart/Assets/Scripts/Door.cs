@@ -2,28 +2,28 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    [Header("Configurações da Porta")]
+    [Header("Door Settings")]
     [SerializeField] private bool isOpen = false;
-    [SerializeField] private bool requiresLight = true; // Se precisa de luz para abrir
-    [SerializeField] private float openAngle = 90f; // Ângulo de abertura no eixo Z
-    [SerializeField] private float animationSpeed = 50f; // Velocidade da animação (graus por segundo)
+    [SerializeField] private bool requiresLight = true; // Whether it needs light to open
+    [SerializeField] private float openAngle = 90f; // Opening angle on the Z axis
+    [SerializeField] private float animationSpeed = 50f; // Animation speed (degrees per second)
     
-    [Header("Configurações de Luz")]
+    [Header("Light Settings")]
     [SerializeField] private bool isReceivingLight = false;
-    [SerializeField] private float lightDetectionRange = 1f; // Range para detectar luz
+    [SerializeField] private float lightDetectionRange = 1f; // Range to detect light
     
-    [Header("Efeitos Visuais")]
-    [SerializeField] private GameObject openEffect; // Efeito quando abre
-    [SerializeField] private GameObject lightIndicator; // Indicador visual de que está recebendo luz
-    [SerializeField] private Material activatedMaterial; // Material quando ativada
-    [SerializeField] private Material deactivatedMaterial; // Material quando desativada
+    [Header("Visual Effects")]
+    [SerializeField] private GameObject openEffect; // Effect when opened
+    [SerializeField] private GameObject lightIndicator; // Visual indicator that it's receiving light
+    [SerializeField] private Material activatedMaterial; // Material when activated
+    [SerializeField] private Material deactivatedMaterial; // Material when deactivated
     
-    [Header("Áudio")]
+    [Header("Audio")]
     [SerializeField] private AudioSource doorAudio;
     [SerializeField] private AudioClip openSound;
     [SerializeField] private AudioClip closeSound;
     
-    // CORREÇÃO: Usar float simples para controlar o ângulo Z
+    // FIX: Use a simple float to control Z angle
     private float currentZAngle;
     private float targetZAngle;
     private bool isAnimating = false;
@@ -32,15 +32,15 @@ public class Door : MonoBehaviour
     
     private void Start()
     {
-        // Armazenar os ângulos originais
+        // Store original euler angles
         originalEulerAngles = transform.eulerAngles;
         currentZAngle = originalEulerAngles.z;
         targetZAngle = currentZAngle;
         
-        // Configurar renderer para mudança de material
+        // Configure renderer for material changes
         doorRenderer = GetComponent<Renderer>();
         
-        // Configurar áudio se não estiver configurado
+        // Configure audio if not already set
         if (doorAudio == null)
         {
             doorAudio = GetComponent<AudioSource>();
@@ -50,7 +50,7 @@ public class Door : MonoBehaviour
             }
         }
         
-        // Estado inicial
+        // Initial state
         UpdateVisualState();
         
         Debug.Log($"[DOOR] Porta {gameObject.name} inicializada - Ângulo Z inicial: {currentZAngle}°, Requer luz: {requiresLight}");
@@ -58,16 +58,16 @@ public class Door : MonoBehaviour
     
     private void Update()
     {
-        // Verificar se está recebendo luz
+        // Check if receiving light
         CheckForLight();
         
-        // Animar abertura/fechamento
+        // Animate opening/closing
         if (isAnimating)
         {
             AnimateDoor();
         }
         
-        // Controlar abertura baseado na luz (só se não estiver animando)
+        // Control opening based on light (only if not animating)
         if (requiresLight && !isAnimating)
         {
             if (isReceivingLight && !isOpen)
@@ -86,10 +86,10 @@ public class Door : MonoBehaviour
         bool wasReceivingLight = isReceivingLight;
         isReceivingLight = false;
         
-        // Verificar se há flores próximas emitindo luz para esta porta
+        // Check if there are flowers nearby emitting light to this door
         Flower[] allFlowers = FindObjectsOfType<Flower>();
         
-        Debug.Log($"[DOOR] Verificando luz para porta {gameObject.name} - {allFlowers.Length} flores encontradas");
+        Debug.Log($"[DOOR] Checking light for door {gameObject.name} - {allFlowers.Length} flowers found");
         
         foreach (Flower flower in allFlowers)
         {
@@ -98,28 +98,28 @@ public class Door : MonoBehaviour
             float distance = Vector3.Distance(flower.transform.position, transform.position);
             string targetName = flower.CurrentTarget != null ? flower.CurrentTarget.name : "null";
             
-            Debug.Log($"[DOOR] Flor {flower.name}: Ativada={flower.IsActivated}, Alvo={targetName}, Distância={distance:F2}");
+            Debug.Log($"[DOOR] Flower {flower.name}: Activated={flower.IsActivated}, Target={targetName}, Distance={distance:F2}");
             
             if (flower.IsActivated && flower.CurrentTarget == transform)
             {
                 if (distance <= lightDetectionRange || lightDetectionRange <= 0)
                 {
                     isReceivingLight = true;
-                    Debug.Log($"[DOOR] ✅ Porta {gameObject.name} RECEBENDO luz da flor {flower.name}!");
+                    Debug.Log($"[DOOR] ✅ Door {gameObject.name} RECEIVING light from flower {flower.name}!");
                     break;
                 }
                 else
                 {
-                    Debug.Log($"[DOOR] ❌ Flor {flower.name} muito longe da porta {gameObject.name} (distância: {distance:F2}, limite: {lightDetectionRange})");
+                    Debug.Log($"[DOOR] ❌ Flower {flower.name} too far from door {gameObject.name} (distance: {distance:F2}, limit: {lightDetectionRange})");
                 }
             }
         }
         
-        // Se mudou o estado da luz, atualizar visual
+        // If light state changed, update visuals
         if (wasReceivingLight != isReceivingLight)
         {
             UpdateVisualState();
-            Debug.Log($"[DOOR] 🔄 Porta {gameObject.name} {(isReceivingLight ? "recebendo" : "perdeu")} luz");
+            Debug.Log($"[DOOR] 🔄 Door {gameObject.name} {(isReceivingLight ? "receiving" : "lost")} light");
         }
     }
     
@@ -131,11 +131,11 @@ public class Door : MonoBehaviour
         targetZAngle = originalEulerAngles.z + openAngle; // Somar ao ângulo original
         isAnimating = true;
         
-        // Efeitos
+        // Effects
         PlayOpenSound();
         ShowOpenEffect();
         
-        Debug.Log($"[DOOR] 🚪 Abrindo porta {gameObject.name} - Rotacionando Z de {currentZAngle}° para {targetZAngle}°");
+        Debug.Log($"[DOOR] 🚪 Opening door {gameObject.name} - Rotating Z from {currentZAngle}° to {targetZAngle}°");
     }
     
     private void CloseDoor()
@@ -146,45 +146,45 @@ public class Door : MonoBehaviour
         targetZAngle = originalEulerAngles.z; // Voltar para rotação original
         isAnimating = true;
         
-        // Efeitos
+        // Effects
         PlayCloseSound();
         
-        Debug.Log($"[DOOR] Fechando porta {gameObject.name} - Voltando Z para {targetZAngle}°");
+        Debug.Log($"[DOOR] Closing door {gameObject.name} - Returning Z to {targetZAngle}°");
     }
     
     private void AnimateDoor()
     {
-        // CORREÇÃO: Usar MoveTowards no ângulo float diretamente
+        // FIX: Use MoveTowards on the float angle directly
         currentZAngle = Mathf.MoveTowards(currentZAngle, targetZAngle, animationSpeed * Time.deltaTime);
         
-        // Aplicar a rotação mantendo X e Y originais
+        // Apply rotation keeping original X and Y
         transform.eulerAngles = new Vector3(originalEulerAngles.x, originalEulerAngles.y, currentZAngle);
         
-        // Verificar se chegou ao destino
+        // Check if reached destination
         if (Mathf.Approximately(currentZAngle, targetZAngle))
         {
             isAnimating = false;
             
             if (isOpen)
             {
-                Debug.Log($"[DOOR] ✅ Porta {gameObject.name} ABERTA em Z={currentZAngle}°");
+                Debug.Log($"[DOOR] ✅ Door {gameObject.name} OPEN at Z={currentZAngle}°");
             }
             else
             {
-                Debug.Log($"[DOOR] ✅ Porta {gameObject.name} FECHADA em Z={currentZAngle}°");
+                Debug.Log($"[DOOR] ✅ Door {gameObject.name} CLOSED at Z={currentZAngle}°");
             }
         }
     }
     
     private void UpdateVisualState()
     {
-        // Atualizar indicador de luz
+        // Update light indicator
         if (lightIndicator != null)
         {
             lightIndicator.SetActive(isReceivingLight);
         }
         
-        // Atualizar material
+        // Update material
         if (doorRenderer != null)
         {
             if (isReceivingLight && activatedMaterial != null)
@@ -232,7 +232,7 @@ public class Door : MonoBehaviour
         }
     }
     
-    // Métodos públicos para controle externo
+    // Public methods for external control
     public void ForceOpen()
     {
         requiresLight = false;
@@ -250,31 +250,31 @@ public class Door : MonoBehaviour
         requiresLight = requires;
     }
     
-    // Propriedades públicas
+    // Public properties
     public bool IsOpen => isOpen;
     public bool IsReceivingLight => isReceivingLight;
     public bool RequiresLight => requiresLight;
     
-    // Visualização no editor
+    // Editor visualization
     private void OnDrawGizmosSelected()
     {
-        // Desenhar range de detecção de luz
+        // Draw light detection range
         Gizmos.color = isReceivingLight ? Color.green : Color.red;
         Gizmos.DrawWireSphere(transform.position, lightDetectionRange);
         
-        // Desenhar arco de abertura (rotação Z)
+        // Draw opening arc (Z rotation)
         Gizmos.color = Color.blue;
         
-        // Posição inicial e final da porta
-        Vector3 startDirection = transform.right; // Direção inicial
-        Vector3 endDirection = Quaternion.Euler(0, 0, openAngle) * startDirection; // Direção final
+        // Door initial and final positions
+        Vector3 startDirection = transform.right; // Initial direction
+        Vector3 endDirection = Quaternion.Euler(0, 0, openAngle) * startDirection; // Final direction
         
-        // Desenhar linhas mostrando a abertura
+        // Draw lines showing the opening
         Gizmos.DrawRay(transform.position, startDirection * 1f);
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(transform.position, endDirection * 1f);
         
-        // Desenhar arco (aproximação)
+        // Draw arc (approximation)
         Gizmos.color = Color.yellow;
         for (int i = 0; i <= 10; i++)
         {

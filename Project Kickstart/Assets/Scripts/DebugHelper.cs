@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class DebugHelper : MonoBehaviour
 {
-    [Header("Debug da Caixa Móvel")]
+    [Header("Movable Box Debug")]
     [SerializeField] private MovableFlower movableFlower;
     [SerializeField] private Door targetDoor;
     
-    [Header("Controles de Debug")]
+    [Header("Debug Controls")]
     [SerializeField] private KeyCode debugKey = KeyCode.F1;
     
     private void Update()
@@ -19,47 +19,47 @@ public class DebugHelper : MonoBehaviour
     
     private void DebugMovableFlower()
     {
-        Debug.Log("=== DEBUG DA CAIXA MÓVEL ===");
+        Debug.Log("=== MOVABLE BOX DEBUG ===");
         
         if (movableFlower == null)
         {
-            Debug.LogError("❌ MovableFlower não configurada!");
+            Debug.LogError("❌ MovableFlower not set!");
             return;
         }
         
-        // Verificar configurações da caixa
-        Debug.Log($"📦 Caixa: {movableFlower.name}");
-        Debug.Log($"📍 Posição: {movableFlower.transform.position}");
+        // Check box settings
+        Debug.Log($"📦 Box: {movableFlower.name}");
+        Debug.Log($"📍 Position: {movableFlower.transform.position}");
         
-        // Verificar flor
+        // Check flower
         Flower flower = movableFlower.GetComponentInChildren<Flower>();
         if (flower != null)
         {
-            Debug.Log($"🌸 Flor: {flower.name}");
-            Debug.Log($"🔌 Flor ativada: {flower.IsActivated}");
-            Debug.Log($"🎯 Alvo atual: {flower.CurrentTarget?.name}");
+            Debug.Log($"🌸 Flower: {flower.name}");
+            Debug.Log($"🔌 Flower activated: {flower.IsActivated}");
+            Debug.Log($"🎯 Current target: {flower.CurrentTarget?.name}");
         }
         else
         {
-            Debug.LogError("❌ Flor não encontrada na caixa!");
+            Debug.LogError("❌ Flower not found in the box!");
         }
         
-        // Verificar porta
+        // Check door
         if (targetDoor != null)
         {
-            Debug.Log($"🚪 Porta: {targetDoor.name}");
-            Debug.Log($"📍 Posição da porta: {targetDoor.transform.position}");
-            Debug.Log($"🔌 Porta recebendo luz: {targetDoor.IsReceivingLight}");
-            Debug.Log($"🚪 Porta aberta: {targetDoor.IsOpen}");
+            Debug.Log($"🚪 Door: {targetDoor.name}");
+            Debug.Log($"📍 Door position: {targetDoor.transform.position}");
+            Debug.Log($"🔌 Door receiving light: {targetDoor.IsReceivingLight}");
+            Debug.Log($"🚪 Door open: {targetDoor.IsOpen}");
             
             float distance = Vector3.Distance(movableFlower.transform.position, targetDoor.transform.position);
-            Debug.Log($"📏 Distância da porta: {distance:F2}");
+            Debug.Log($"📏 Distance to door: {distance:F2}");
         }
         
-        Debug.Log("=== FIM DO DEBUG ===");
+        Debug.Log("=== END OF DEBUG ===");
     }
     
-    // Visualização no editor
+    // Editor visualization
     private void OnDrawGizmos()
     {
         if (movableFlower != null && targetDoor != null)
