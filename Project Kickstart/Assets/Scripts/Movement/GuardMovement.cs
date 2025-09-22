@@ -27,6 +27,8 @@ public class GuardMovement : MonoBehaviour
     private Vector3 chargeDirection;
     private float chargeTimer;
 
+    public Transform Shadow;
+
     void Start()
     {
         if (agent == null)
@@ -38,6 +40,7 @@ public class GuardMovement : MonoBehaviour
 
     void Update()
     {
+        Shadow.transform.position = transform.position;
         switch (currentState)
         {
             case GuardState.Patrolling:
