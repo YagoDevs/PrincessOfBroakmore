@@ -7,7 +7,7 @@ public class BlowController : MonoBehaviour
     private Rigidbody ObjectRb;
     public float pushForce;
     public Camera Camera;
-    
+    public Animator Animator;
     // List of boxes that are in the trigger
     private List<Rigidbody> pushableObjects = new List<Rigidbody>();
     
@@ -23,6 +23,8 @@ public class BlowController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("F detected in Update!");
+            Animator.SetTrigger("Screaming");
+
             StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
             
             // Push all nearby boxes
