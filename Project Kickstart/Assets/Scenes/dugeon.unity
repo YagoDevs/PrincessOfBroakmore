@@ -6564,6 +6564,74 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.04, y: 0.03999999, z: 0.002086061}
   m_Center: {x: -0.0000000018626451, y: -0.0000001536682, z: 0.000043030108}
+--- !u!1 &968704836
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968704838}
+  - component: {fileID: 968704837}
+  - component: {fileID: 968704839}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &968704837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968704836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3839e9ecd86158048b582428d88f0335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lights: {fileID: 0}
+  dimManager: {fileID: 968704839}
+  enterManic:
+    m_PersistentCalls:
+      m_Calls: []
+  exitManic:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &968704838
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968704836}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -12.147242, y: 2.61195, z: -1.423006}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &968704839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968704836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdeceed67a1ca7544a53991c0e488a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentDimension: 0
+  switchDimensionKey: 9
+  showDebugInfo: 1
 --- !u!1001 &970733110
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15413,3 +15481,4 @@ SceneRoots:
   - {fileID: 1621929249}
   - {fileID: 1713189472}
   - {fileID: 1140566858}
+  - {fileID: 968704838}
