@@ -29,6 +29,8 @@ public class GuardMovement : MonoBehaviour
 
     public Transform Shadow;
 
+    [SerializeField] Animator animator;
+
     void Start()
     {
         if (agent == null)
@@ -63,6 +65,7 @@ public class GuardMovement : MonoBehaviour
         if (agent.remainingDistance <= stoppingDistance && !agent.pathPending)
         {
             NextWaypoint();
+            animator.SetBool("Walk", true);
         }
     }
 
@@ -121,11 +124,13 @@ public class GuardMovement : MonoBehaviour
         {
             transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
             chargeTimer -= Time.deltaTime;
+            animator.SetBool("Charge", true);
         }
         else
         {
             currentState = GuardState.Returning;
         }
+        animator.SetBool("Charge", false);
     }
 
     void ReturnToPatrol()
