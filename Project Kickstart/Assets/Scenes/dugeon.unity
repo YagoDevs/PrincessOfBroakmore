@@ -11067,6 +11067,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2531177b3e287c4486f0266203c86b1, type: 3}
   m_PrefabInstance: {fileID: 1473080296}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &1484239699 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 910566402796452535, guid: f34a285f95da74b4e9df21d37e92da1f, type: 3}
+  m_PrefabInstance: {fileID: 1713189472}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1509328686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12367,6 +12372,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3823449851052610055, guid: f34a285f95da74b4e9df21d37e92da1f, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1484239699}
     - target: {fileID: 3823449851052610055, guid: f34a285f95da74b4e9df21d37e92da1f, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
       value: 
