@@ -2,30 +2,30 @@ using UnityEngine;
 
 public class Flower : MonoBehaviour
 {
-    [Header("Configurações da Flor")]
+    [Header("Flower Settings")]
     [SerializeField] private Transform currentTarget;
     [SerializeField] private LineRenderer lineRenderer;
     
-    [Header("Múltiplas Direções")]
-    [SerializeField] private Transform nextFlowerTarget; // Direção para próxima flor
-    [SerializeField] private Transform objectTarget1; // Direção para objeto 1
-    [SerializeField] private Transform objectTarget2; // Direção para objeto 2
-    [SerializeField] private int currentDirectionIndex = 0; // Índice da direção atual (0=flor, 1=obj1, 2=obj2)
+    [Header("Multiple Directions")]
+    [SerializeField] private Transform nextFlowerTarget; // Direction to next flower
+    [SerializeField] private Transform objectTarget1; // Direction to object 1
+    [SerializeField] private Transform objectTarget2; // Direction to object 2
+    [SerializeField] private int currentDirectionIndex = 0; // Current direction index (0=flower, 1=obj1, 2=obj2)
     
-    [Header("Configurações Visuais")]
+    [Header("Visual Settings")]
     [SerializeField] private Color lightColor = Color.white;
     [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private Material lineMaterial;
-    [SerializeField] private GameObject lightEffect; // Efeito visual quando ativada
+    [SerializeField] private GameObject lightEffect; // Visual effect when activated
     
-    [Header("Sistema de Luz Volumétrica")]
+    [Header("Volumetric Light System")]
     [SerializeField] private bool useVolumetricLight = true;
-    [SerializeField] private int volumeLayers = 5; // Quantas camadas de volume
-    [SerializeField] private float maxVolumeWidth = 0.5f; // Largura máxima do volume
+    [SerializeField] private int volumeLayers = 5; // How many volume layers
+    [SerializeField] private float maxVolumeWidth = 0.5f; // Maximum volume width
     [SerializeField] private float lightIntensity = 2f;
     [SerializeField] private float particleDensity = 50f;
     
-    // Componentes criados automaticamente
+    // Components created automatically
     private LineRenderer[] volumeLines;
     private ParticleSystem lightParticles;
     private Light originLight;
@@ -33,25 +33,25 @@ public class Flower : MonoBehaviour
     private LensFlare originFlare;
     private LensFlare destinationFlare;
     
-    [Header("Estado da Flor")]
+    [Header("Flower State")]
     [SerializeField] private bool isActivated = false;
-    [SerializeField] private bool autoActivateOnStart = false; // Se deve ativar automaticamente no início
-    [SerializeField] private bool autoChainActivation = false; // Se deve ativar automaticamente a próxima flor
+    [SerializeField] private bool autoActivateOnStart = false; // Whether to auto-activate at start
+    [SerializeField] private bool autoChainActivation = false; // Whether to automatically activate the next flower
 
     private void Start()
     {
         ConfigureLineRenderer();
         
-        // Desativa o efeito de luz inicialmente
+        // Disable light effect initially
         if (lightEffect != null)
         {
             lightEffect.SetActive(isActivated);
         }
         
-        // Configura o alvo inicial baseado na direção atual
+        // Set initial target based on current direction
         UpdateCurrentTarget();
         
-        // Se autoActivateOnStart estiver marcado, ativa a flor
+        // If autoActivateOnStart is checked, activate the flower
         if (autoActivateOnStart && !isActivated)
         {
             ReceiveLight();
@@ -66,7 +66,7 @@ public class Flower : MonoBehaviour
         }
         else
         {
-            // Sistema simples original
+            // Simple original system
             if (lineRenderer == null)
             {
                 lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -88,21 +88,21 @@ public class Flower : MonoBehaviour
     
     private void CreateVolumetricLightSystem()
     {
-        Debug.Log($"[VOLUMETRIC] Criando sistema de luz volumétrica para {gameObject.name}");
+        Debug.Log($"[VOLUMETRIC] Creating volumetric light system for {gameObject.name}");
         
-        // 1. Criar múltiplas linhas para volume
+        // 1. Create multiple lines for volume
         CreateVolumeLayers();
         
-        // 2. Criar sistema de partículas
+        // 2. Create particle system
         CreateParticleSystem();
         
-        // 3. Criar luzes pontuais
+        // 3. Create point lights
         CreatePointLights();
         
-        // 4. Criar lens flares
+        // 4. Create lens flares
         CreateLensFlares();
         
-        Debug.Log($"[VOLUMETRIC] Sistema criado com sucesso!");
+        Debug.Log($"[VOLUMETRIC] System created successfully!");
     }
     
     private void CreateVolumeLayers()
@@ -152,16 +152,16 @@ public class Flower : MonoBehaviour
             volumeLines[i] = layer;
         }
         
-        Debug.Log($"[VOLUMETRIC] {volumeLayers} camadas de volume criadas");
+        Debug.Log($"[VOLUMETRIC] {volumeLayers} volume layers created");
     }
     
     private Material CreateGlowMaterial(int layerIndex)
     {
-        // Criar material com shader padrão e configurações de glow
+        // Create material with default shader and glow settings
         Material glowMat = new Material(Shader.Find("Sprites/Default"));
         glowMat.name = $"AutoGlow_Layer_{layerIndex}";
         
-        // Configurar para glow
+        // Configure for glow
         glowMat.color = lightColor;
         glowMat.SetFloat("_Mode", 2); // Transparent
         glowMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
@@ -177,15 +177,15 @@ public class Flower : MonoBehaviour
     
     private void CreateParticleSystem()
     {
-        // Criar GameObject para partículas
+        // Create GameObject for particles
         GameObject particleObj = new GameObject("LightParticles");
         particleObj.transform.SetParent(transform);
         particleObj.transform.localPosition = Vector3.zero;
         
-        // Adicionar sistema de partículas
+        // Add particle system
         lightParticles = particleObj.AddComponent<ParticleSystem>();
         
-        // Configurar partículas
+        // Configure particles
         var main = lightParticles.main;
         main.startLifetime = 2f;
         main.startSpeed = 1f;
@@ -194,24 +194,24 @@ public class Flower : MonoBehaviour
         main.maxParticles = (int)particleDensity;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         
-        // Configurar emissão
+        // Configure emission
         var emission = lightParticles.emission;
         emission.enabled = false; // Só ativa quando a luz estiver ativa
         emission.rateOverTime = particleDensity / 2f;
         
-        // Configurar forma (linha)
+        // Configure shape (line)
         var shape = lightParticles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Box;
         shape.scale = new Vector3(0.1f, 0.1f, 1f); // Será ajustado dinamicamente
         
-        // Configurar velocidade
+        // Configure velocity
         var velocity = lightParticles.velocityOverLifetime;
         velocity.enabled = true;
         velocity.space = ParticleSystemSimulationSpace.Local;
         velocity.radial = 0.2f;
         
-        // Configurar cor ao longo da vida
+        // Configure color over lifetime
         var colorOverLifetime = lightParticles.colorOverLifetime;
         colorOverLifetime.enabled = true;
         Gradient gradient = new Gradient();
@@ -229,7 +229,7 @@ public class Flower : MonoBehaviour
         );
         colorOverLifetime.color = gradient;
         
-        // Configurar tamanho ao longo da vida
+        // Configure size over lifetime
         var sizeOverLifetime = lightParticles.sizeOverLifetime;
         sizeOverLifetime.enabled = true;
         AnimationCurve sizeCurve = new AnimationCurve();
@@ -238,12 +238,12 @@ public class Flower : MonoBehaviour
         sizeCurve.AddKey(1f, 0f);
         sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
         
-        Debug.Log($"[VOLUMETRIC] Sistema de partículas criado");
+        Debug.Log($"[VOLUMETRIC] Particle system created");
     }
     
     private void CreatePointLights()
     {
-        // Luz na origem (flor)
+        // Light at origin (flower)
         GameObject originLightObj = new GameObject("OriginLight");
         originLightObj.transform.SetParent(transform);
         originLightObj.transform.localPosition = Vector3.zero;
@@ -256,24 +256,24 @@ public class Flower : MonoBehaviour
         originLight.shadows = LightShadows.Soft;
         originLight.enabled = false;
         
-        // A luz de destino será criada dinamicamente quando necessário
-        Debug.Log($"[VOLUMETRIC] Luzes pontuais criadas");
+        // Destination light will be created dynamically when needed
+        Debug.Log($"[VOLUMETRIC] Point lights created");
     }
     
     private void CreateLensFlares()
     {
-        // Lens flare na origem
+        // Lens flare at origin
         originFlare = originLight.gameObject.AddComponent<LensFlare>();
         
-        // Configurar flare automaticamente
+        // Configure flare automatically
         originFlare.brightness = 0.5f;
         originFlare.fadeSpeed = 3f;
         originFlare.color = lightColor;
         
-        // Criar flare texture simples se não existir
+        // Create simple flare texture if none exists
         if (originFlare.flare == null)
         {
-            // Unity tem flares padrão que podemos tentar usar
+            // Unity has default flares we can try to use
             var defaultFlare = Resources.Load<Flare>("Default-Flare");
             if (defaultFlare != null)
             {
@@ -281,7 +281,7 @@ public class Flower : MonoBehaviour
             }
         }
         
-        Debug.Log($"[VOLUMETRIC] Lens flares criados");
+        Debug.Log($"[VOLUMETRIC] Lens flares created");
     }
 
     public void ReceiveLight()
@@ -290,16 +290,16 @@ public class Flower : MonoBehaviour
         
         isActivated = true;
         
-        // Ativa efeito visual
+        // Activate visual effect
         if (lightEffect != null)
         {
             lightEffect.SetActive(true);
         }
         
-        // Emite luz para o próximo alvo se existir
+        // Emit light to the next target if it exists
         EmitLightToTarget();
         
-        Debug.Log($"Flor {gameObject.name} foi ativada!");
+        Debug.Log($"Flower {gameObject.name} was activated!");
     }
 
     private void EmitLightToTarget()
@@ -312,12 +312,12 @@ public class Flower : MonoBehaviour
 
         if (useVolumetricLight)
         {
-            // Sistema volumétrico
+            // Volumetric system
             EmitVolumetricLight();
         }
         else
         {
-            // Sistema simples original
+            // Simple original system
             if (lineRenderer == null)
             {
                 Debug.Log($"Flor {gameObject.name}: LineRenderer não configurado.");
@@ -329,20 +329,20 @@ public class Flower : MonoBehaviour
             lineRenderer.SetPosition(1, currentTarget.position);
         }
 
-        // Se o alvo for outra flor E autoChainActivation estiver ativo, ativa ela
+        // If the target is another flower AND autoChainActivation is active, activate it
         Flower nextFlower = currentTarget.GetComponent<Flower>();
         if (nextFlower != null && autoChainActivation)
         {
             nextFlower.ReceiveLight();
-            Debug.Log($"Flor {gameObject.name}: Ativou automaticamente a próxima flor {nextFlower.name}");
+            Debug.Log($"Flower {gameObject.name}: Automatically activated next flower {nextFlower.name}");
         }
         else if (nextFlower != null && !autoChainActivation)
         {
-            Debug.Log($"Flor {gameObject.name}: Emitindo luz para {nextFlower.name}, mas não ativando automaticamente");
+            Debug.Log($"Flower {gameObject.name}: Emitting light to {nextFlower.name}, but not auto-activating");
         }
         else
         {
-            Debug.Log($"Flor {gameObject.name}: Alvo {currentTarget.name} não é uma flor.");
+            Debug.Log($"Flower {gameObject.name}: Target {currentTarget.name} is not a flower.");
         }
     }
     
@@ -353,9 +353,9 @@ public class Flower : MonoBehaviour
         Vector3 direction = (endPos - startPos).normalized;
         float distance = Vector3.Distance(startPos, endPos);
         
-        Debug.Log($"[VOLUMETRIC] Emitindo luz volumétrica para {currentTarget.name}, distância: {distance:F2}");
+        Debug.Log($"[VOLUMETRIC] Emitting volumetric light to {currentTarget.name}, distance: {distance:F2}");
         
-        // 1. Configurar todas as camadas de volume
+        // 1. Configure all volume layers
         if (volumeLines != null)
         {
             for (int i = 0; i < volumeLines.Length; i++)
@@ -369,7 +369,7 @@ public class Flower : MonoBehaviour
             }
         }
         
-        // 2. Configurar sistema de partículas
+        // 2. Configure particle system
         if (lightParticles != null)
         {
             // Posicionar o sistema no meio do caminho
@@ -386,16 +386,16 @@ public class Flower : MonoBehaviour
             emission.enabled = true;
         }
         
-        // 3. Ativar luzes pontuais
+        // 3. Activate point lights
         if (originLight != null)
         {
             originLight.enabled = true;
         }
         
-        // 4. Criar luz no destino se necessário
+        // 4. Create destination light if necessary
         CreateDestinationLight(endPos);
         
-        // 5. Ativar lens flares
+        // 5. Activate lens flares
         if (originFlare != null)
         {
             originFlare.enabled = true;
@@ -404,10 +404,10 @@ public class Flower : MonoBehaviour
     
     private void CreateDestinationLight(Vector3 position)
     {
-        // Verificar se já existe uma luz no alvo
+        // Check if there is already a light on the target
         if (currentTarget.GetComponent<Light>() == null)
         {
-            // Criar luz temporária no destino
+            // Create temporary light at destination
             GameObject destLightObj = new GameObject("DestinationLight_Temp");
             destLightObj.transform.position = position;
             
@@ -418,20 +418,20 @@ public class Flower : MonoBehaviour
             destinationLight.range = 2f;
             destinationLight.shadows = LightShadows.Soft;
             
-            // Adicionar lens flare
+            // Add lens flare
             destinationFlare = destLightObj.AddComponent<LensFlare>();
             destinationFlare.brightness = 0.3f;
             destinationFlare.fadeSpeed = 3f;
             destinationFlare.color = lightColor;
             
-            // Auto-destruir após um tempo
+            // Auto-destroy after some time
             Destroy(destLightObj, 10f);
         }
     }
 
     public void ChangeTarget(Transform newTarget)
     {
-        // Remove a luz anterior se estava ativa
+        // Remove previous light if it was active
         if (isActivated && lineRenderer != null)
         {
             lineRenderer.enabled = false;
@@ -441,7 +441,7 @@ public class Flower : MonoBehaviour
         
         Debug.Log($"Flor {gameObject.name}: Alvo mudado para {(newTarget != null ? newTarget.name : "null")}");
 
-        // Se a flor já estava ativada, emite luz para o novo alvo
+        // If the flower was already activated, emit light to the new target
         if (isActivated)
         {
             EmitLightToTarget();
@@ -458,7 +458,7 @@ public class Flower : MonoBehaviour
         }
         else
         {
-            // Sistema simples
+            // Simple system
             if (lineRenderer != null)
             {
                 lineRenderer.enabled = false;
@@ -470,14 +470,14 @@ public class Flower : MonoBehaviour
             lightEffect.SetActive(false);
         }
         
-        Debug.Log($"Flor {gameObject.name} foi desativada!");
+        Debug.Log($"Flower {gameObject.name} was deactivated!");
     }
     
     private void DeactivateVolumetricLight()
     {
         Debug.Log($"[VOLUMETRIC] Desativando sistema volumétrico de {gameObject.name}");
         
-        // 1. Desativar todas as camadas de volume
+        // 1. Deactivate all volume layers
         if (volumeLines != null)
         {
             for (int i = 0; i < volumeLines.Length; i++)
@@ -489,34 +489,35 @@ public class Flower : MonoBehaviour
             }
         }
         
-        // 2. Desativar sistema de partículas
+        // 2. Deactivate particle system
         if (lightParticles != null)
         {
             var emission = lightParticles.emission;
             emission.enabled = false;
         }
         
-        // 3. Desativar luzes pontuais
+        // 3. Deactivate point lights
+        // 3. Deactivate point lights
         if (originLight != null)
         {
             originLight.enabled = false;
         }
         
-        if (destinationLight != null)
-        {
-            destinationLight.enabled = false;
-        }
+        // if (destinationLight != null)
+        // {
+        //     destinationLight.enabled = false;
+        // }
         
         // 4. Desativar lens flares
-        if (originFlare != null)
-        {
-            originFlare.enabled = false;
-        }
+        // if (originFlare != null)
+        // {
+        //     originFlare.enabled = false;
+        // }
         
-        if (destinationFlare != null)
-        {
-            destinationFlare.enabled = false;
-        }
+        // if (destinationFlare != null)
+        // {
+        //     destinationFlare.enabled = false;
+        // }
     }
 
     private void Update()
@@ -585,14 +586,14 @@ public class Flower : MonoBehaviour
 
     private void OnValidate()
     {
-        // Atualiza as configurações no editor
+        // Update settings in the editor
         if (lineRenderer != null)
         {
             ConfigureLineRenderer();
         }
     }
 
-    // Método para atualizar o alvo atual baseado na direção
+    // Method to update current target based on direction
     private void UpdateCurrentTarget()
     {
         Transform newTarget = null;
@@ -601,51 +602,51 @@ public class Flower : MonoBehaviour
         {
             case 0:
                 newTarget = nextFlowerTarget;
-                Debug.Log($"Flor {gameObject.name}: Direção mudada para PRÓXIMA FLOR ({(nextFlowerTarget != null ? nextFlowerTarget.name : "null")})");
+                Debug.Log($"Flower {gameObject.name}: Direction changed to NEXT FLOWER ({(nextFlowerTarget != null ? nextFlowerTarget.name : "null")})");
                 break;
             case 1:
                 newTarget = objectTarget1;
-                Debug.Log($"Flor {gameObject.name}: Direção mudada para OBJETO 1 ({(objectTarget1 != null ? objectTarget1.name : "null")})");
+                Debug.Log($"Flower {gameObject.name}: Direction changed to OBJECT 1 ({(objectTarget1 != null ? objectTarget1.name : "null")})");
                 break;
             case 2:
                 newTarget = objectTarget2;
-                Debug.Log($"Flor {gameObject.name}: Direção mudada para OBJETO 2 ({(objectTarget2 != null ? objectTarget2.name : "null")})");
+                Debug.Log($"Flower {gameObject.name}: Direction changed to OBJECT 2 ({(objectTarget2 != null ? objectTarget2.name : "null")})");
                 break;
         }
         
         currentTarget = newTarget;
         
-        // Se a flor já está ativa, atualiza a linha de luz
+        // If the flower is already active, update the light line
         if (isActivated)
         {
             EmitLightToTarget();
         }
     }
     
-    // Método para ciclar para a próxima direção
+    // Method to cycle to the next direction
     public void CycleToNextDirection()
     {
-        currentDirectionIndex = (currentDirectionIndex + 1) % 3; // Cicla entre 0, 1, 2
+        currentDirectionIndex = (currentDirectionIndex + 1) % 3; // Cycle between 0, 1, 2
         UpdateCurrentTarget();
-        Debug.Log($"Flor {gameObject.name}: Ciclou para direção {currentDirectionIndex}");
+        Debug.Log($"Flower {gameObject.name}: Cycled to direction {currentDirectionIndex}");
     }
     
-    // Método para definir uma direção específica
+    // Method to set a specific direction
     public void SetDirection(int directionIndex)
     {
         if (directionIndex >= 0 && directionIndex <= 2)
         {
             currentDirectionIndex = directionIndex;
             UpdateCurrentTarget();
-            Debug.Log($"Flor {gameObject.name}: Direção definida para {currentDirectionIndex}");
+            Debug.Log($"Flower {gameObject.name}: Direction set to {currentDirectionIndex}");
         }
         else
         {
-            Debug.LogWarning($"Flor {gameObject.name}: Índice de direção inválido: {directionIndex}");
+            Debug.LogWarning($"Flower {gameObject.name}: Invalid direction index: {directionIndex}");
         }
     }
     
-    // Propriedades para acesso externo
+    // Properties for external access
     public bool IsActivated => isActivated;
     public Transform CurrentTarget => currentTarget;
     public int CurrentDirectionIndex => currentDirectionIndex;
@@ -655,10 +656,10 @@ public class Flower : MonoBehaviour
         {
             switch (currentDirectionIndex)
             {
-                case 0: return "Próxima Flor";
-                case 1: return "Objeto 1";
-                case 2: return "Objeto 2";
-                default: return "Desconhecido";
+                case 0: return "Next Flower";
+                case 1: return "Object 1";
+                case 2: return "Object 2";
+                default: return "Unknown";
             }
         }
     }
