@@ -27,6 +27,10 @@ public class GuardMovement : MonoBehaviour
     private Vector3 chargeDirection;
     private float chargeTimer;
 
+    public Transform Shadow;
+
+    [SerializeField] Animator animator;
+
     void Start()
     {
         if (agent == null)
@@ -38,6 +42,7 @@ public class GuardMovement : MonoBehaviour
 
     void Update()
     {
+        Shadow.transform.position = transform.position;
         switch (currentState)
         {
             case GuardState.Patrolling:
@@ -60,6 +65,7 @@ public class GuardMovement : MonoBehaviour
         if (agent.remainingDistance <= stoppingDistance && !agent.pathPending)
         {
             NextWaypoint();
+            animator.SetBool("Walk", true);
         }
     }
 
@@ -118,11 +124,13 @@ public class GuardMovement : MonoBehaviour
         {
             transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
             chargeTimer -= Time.deltaTime;
+            animator.SetBool("Charge", true);
         }
         else
         {
             currentState = GuardState.Returning;
         }
+        animator.SetBool("Charge", false);
     }
 
     void ReturnToPatrol()
