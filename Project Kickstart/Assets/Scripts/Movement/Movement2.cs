@@ -1,5 +1,7 @@
 
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Movement2: MonoBehaviour
@@ -18,6 +20,7 @@ public class Movement2: MonoBehaviour
     private float currentMoveForce;
 
     [Header("References")]
+    private string SceneName;
     private Rigidbody rb;
     public LayerMask groundMask;
     public Transform groundCheck;
@@ -29,6 +32,7 @@ public class Movement2: MonoBehaviour
         if (rb == null) Debug.LogError("Missing components in player");
         rb.freezeRotation = true;
         currentMoveForce = moveForce;
+        SceneName = SceneManager.GetActiveScene().name;
     }
 
     void Update()
@@ -53,11 +57,21 @@ public class Movement2: MonoBehaviour
     void FixedUpdate()
     {
         Vector3 direction = Vector3.zero;
-
+        if(SceneName == "dugeon") 
+        {
+            if (Input.GetKey(KeyCode.W)) direction += Vector3.right;   
+            if (Input.GetKey(KeyCode.S)) direction += Vector3.left;     
+            if (Input.GetKey(KeyCode.A)) direction += Vector3.forward;      
+            if (Input.GetKey(KeyCode.D)) direction += Vector3.back;
+        }
+        else
+        {
         if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;   // W = Para frente
         if (Input.GetKey(KeyCode.S)) direction += Vector3.back;      // S = Para trás  
         if (Input.GetKey(KeyCode.A)) direction += Vector3.left;      // A = Para esquerda
         if (Input.GetKey(KeyCode.D)) direction += Vector3.right;     // D = Para direita
+        }
+       
         
         // Debug: Mostrar direção quando pressionar teclas
         if (direction != Vector3.zero)
