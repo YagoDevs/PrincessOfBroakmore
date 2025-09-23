@@ -15656,6 +15656,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 910566402796452535, guid: f34a285f95da74b4e9df21d37e92da1f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1664067210379063438, guid: f34a285f95da74b4e9df21d37e92da1f, type: 3}
       propertyPath: m_Name
       value: Guard

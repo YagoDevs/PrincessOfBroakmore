@@ -112,6 +112,7 @@ public class GuardMovement : MonoBehaviour
                     chargeTimer = chargeDuration;
                     agent.isStopped = true;
                     currentState = GuardState.Charging;
+                    animator.SetBool("Charge", true);
                     return;
                 }
             }
@@ -120,6 +121,8 @@ public class GuardMovement : MonoBehaviour
 
     void Charge()
     {
+        animator.SetBool("Charge", true);
+        animator.SetTrigger("Charging");
         if (chargeTimer > 0)
         {
             transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
