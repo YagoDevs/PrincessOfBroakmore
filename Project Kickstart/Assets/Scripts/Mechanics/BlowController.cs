@@ -6,8 +6,13 @@ public class BlowController : MonoBehaviour
 {
     private Rigidbody ObjectRb;
     public float pushForce;
-    public Camera Camera;
+    public Camera Camera; // Mantido para compatibilidade, mas não será mais usado
     public Animator Animator;
+    
+    [Header("Camera Shake Settings")]
+    public float shakeDuration = 0.5f;
+    public float shakeMagnitude = 0.1f;
+    
     // List of boxes that are in the trigger
     private List<Rigidbody> pushableObjects = new List<Rigidbody>();
     
@@ -25,7 +30,23 @@ public class BlowController : MonoBehaviour
             Debug.Log("F detected in Update!");
             Animator.SetTrigger("Screaming");
 
-            StartCoroutine(Camera.GetComponent<CameraShake>().Shake(0.5f, 0.1f));
+            // Usar o novo sistema de CameraShake
+            if (CameraShake.Instance != null)
+            {
+                CameraShake.Instance.ShakeAllActiveCameras(shakeDuration, shakeMagnitude);
+                Debug.Log("CameraShake: Shaking all active cameras!");
+            }
+            else
+            {
+                Debug.LogWarning("CameraShake.Instance is null! Make sure there's a CameraShake object in the scene.");
+                
+                // Fallback: tentar usar o sistema antigo se a câmera específica ainda existir
+                if (Camera != null && Camera.GetComponent<CameraShake>() != null)
+                {
+                    StartCoroutine(Camera.GetComponent<CameraShake>().Shake(shakeDuration, shakeMagnitude));
+                    Debug.Log("Using fallback camera shake system");
+                }
+            }
             
             // Push all nearby boxes
             PushNearbyObjects();
