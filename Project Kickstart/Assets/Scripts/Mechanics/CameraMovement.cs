@@ -2,14 +2,22 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    GameObject player;
+    public Transform player;     // Assign your player in the inspector
+    public Vector3 offset;       // The distance between the camera and the player
+    public float smoothSpeed = 5f;
 
-    private void Start()
+    void LateUpdate()
     {
-        player = FindFirstObjectByType<Movement2>().gameObject;
-    }
-    void Update()
-    {
-        
+        if (player == null) return;
+
+        // Desired position
+        Vector3 targetPosition = player.position + offset;
+
+        // Smooth follow
+        transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
+
+        // Keep the same rotation (isometric angle)
+        // Or if you want the camera to always look at player:
+        // transform.LookAt(player.position);
     }
 }
