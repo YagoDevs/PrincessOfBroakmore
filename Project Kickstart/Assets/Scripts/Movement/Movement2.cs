@@ -66,17 +66,17 @@ public class Movement2 : MonoBehaviour
         }
         else
         {
-            if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;   // W = Para frente
-            if (Input.GetKey(KeyCode.S)) direction += Vector3.back;      // S = Para trás  
-            if (Input.GetKey(KeyCode.A)) direction += Vector3.left;      // A = Para esquerda
-            if (Input.GetKey(KeyCode.D)) direction += Vector3.right;     // D = Para direita
+            if (Input.GetKey(KeyCode.W)) direction += Vector3.forward;   // W = Forward
+            if (Input.GetKey(KeyCode.S)) direction += Vector3.back;      // S = Backward
+            if (Input.GetKey(KeyCode.A)) direction += Vector3.left;      // A = Left
+            if (Input.GetKey(KeyCode.D)) direction += Vector3.right;     // D = Right
         }
 
 
-        // Debug: Mostrar direção quando pressionar teclas
+        // Debug: Show direction when pressing keys
         if (direction != Vector3.zero)
         {
-            Debug.Log($"[MOVEMENT] Direção: {direction} - W:{Input.GetKey(KeyCode.W)} S:{Input.GetKey(KeyCode.S)} A:{Input.GetKey(KeyCode.A)} D:{Input.GetKey(KeyCode.D)}");
+            Debug.Log($"[MOVEMENT] Direction: {direction} - W:{Input.GetKey(KeyCode.W)} S:{Input.GetKey(KeyCode.S)} A:{Input.GetKey(KeyCode.A)} D:{Input.GetKey(KeyCode.D)}");
         }
 
         if (direction != Vector3.zero)
@@ -131,7 +131,7 @@ public class Movement2 : MonoBehaviour
         Vector3 animatorVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         float currentSpeed = animatorVelocity.magnitude;
 
-        //Threshold mais alto para evitar animação tremulante
+        // Higher threshold to avoid flickering animation
         float speedThreshold = 0.5f;
         bool isRunning = currentSpeed > speedThreshold;
 

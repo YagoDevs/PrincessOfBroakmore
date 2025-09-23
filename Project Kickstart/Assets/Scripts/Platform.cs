@@ -3,45 +3,51 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Platform : MonoBehaviour
 {
-    [Header("Configurações da Plataforma")]
-    [SerializeField] private Torch torch; // Referência à tocha que ela controla
-    [SerializeField] private Transform newTarget; // Novo alvo para a tocha quando ativada
+    [Header("Platform Settings")]
+    [SerializeField] private Torch torch; // Reference to the torch it controls
+    [SerializeField] private Transform newTarget; // New target for the torch when activated
     
-    [Header("Conexão Direta de Flores")]
-    [SerializeField] private Flower sourceFlower; // Flor que vai emitir luz
-    [SerializeField] private Flower targetFlower; // Flor que vai receber luz
-    [SerializeField] private bool useDirectFlowerConnection = false; // Se deve usar conexão direta ao invés da tocha
+    [Header("Direct Flower Connection")]
+    [SerializeField] private Flower sourceFlower; // Flower that will emit light
+    [SerializeField] private Flower targetFlower; // Flower that will receive light
+    [SerializeField] private bool useDirectFlowerConnection = false; // Whether to use direct connection instead of the torch
     
-    [Header("Sistema de Ciclo de Direções")]
-    [SerializeField] private Flower flowerToCycle; // Flor que vai ter sua direção alterada
-    [SerializeField] private bool useCycleMode = false; // Se deve usar modo de ciclo
+    [Header("Direction Cycle System")]
+    [SerializeField] private Flower flowerToCycle; // Flower that will have its direction changed
+    [SerializeField] private bool useCycleMode = false; // Whether to use cycle mode
     
-    [Header("Configurações de Interação")]
+    [Header("Interaction Settings")]
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private bool isActivated = false;
-    [SerializeField] private bool canBeDeactivated = true; // Se pode ser desativada ao sair
+    [SerializeField] private bool canBeDeactivated = true; // Whether it can be deactivated on exit
     
-    [Header("Efeitos Visuais")]
-    [SerializeField] private GameObject activatedEffect; // Efeito quando ativada
-    [SerializeField] private Material activatedMaterial; // Material quando ativada
-    [SerializeField] private Material deactivatedMaterial; // Material quando desativada
-    [SerializeField] private GameObject activatedModel; // Modelo quando ativada
-    [SerializeField] private GameObject deactivatedModel; // Modelo quando desativada
+    [Header("Dimension Settings")]
+    [SerializeField] private DimensionType activeDimension = DimensionType.DimensionA; // Which dimension this platform belongs to
+    [SerializeField] private bool onlyWorkInCorrectDimension = true; // Whether platform only works in its assigned dimension
     
-    [Header("Configurações de Movimento")]
-    [SerializeField] private float depthOffset = 0.1f; // Quanto a plataforma desce
-    [SerializeField] private float animationSpeed = 5f; // Velocidade da animação
+    [Header("Visual Effects")]
+    [SerializeField] private GameObject activatedEffect; // Effect when activated
+    [SerializeField] private Material activatedMaterial; // Material when activated
+    [SerializeField] private Material deactivatedMaterial; // Material when deactivated
+    [SerializeField] private GameObject activatedModel; // Model when activated
+    [SerializeField] private GameObject deactivatedModel; // Model when deactivated
+    
+    [Header("Movement Settings")]
+    [SerializeField] private float depthOffset = 0.1f; // How much the platform goes down
+    [SerializeField] private float animationSpeed = 5f; // Animation speed
     
     private Renderer platformRenderer;
-    private Transform originalTorchTarget; // Armazena o alvo original da tocha
-    private Transform originalSourceTarget; // Armazena o alvo original da flor fonte
-    private Vector3 originalPosition; // Posição original da plataforma
-    private Vector3 targetPosition; // Posição alvo da plataforma
-    private bool isMoving = false; // Se está se movendo
+    private Transform originalTorchTarget; // Stores the original target of the torch
+    private Transform originalSourceTarget; // Stores the original target of the source flower
+    private Vector3 originalPosition; // Original position of the platform
+    private Vector3 targetPosition; // Target position of the platform
+    private bool isMoving = false; // Whether it is moving
+    private bool playerOnPlatform = false; // Track if player is currently on platform
+    private bool hasPlayedMovementSound = false; // Track if movement sound has been played for current movement
 
     private void Start()
     {
-        // Configura o trigger
+        // Configure trigger
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
@@ -49,150 +55,201 @@ public class Platform : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Platform {gameObject.name}: Collider não encontrado! Adicionando BoxCollider...");
+            Debug.LogWarning($"Platform {gameObject.name}: Collider not found! Adding BoxCollider...");
             gameObject.AddComponent<BoxCollider>().isTrigger = true;
         }
 
-        // Obtém o renderer para mudanças visuais
+        // Get renderer for visual changes
         platformRenderer = GetComponent<Renderer>();
         
-        // Armazena o alvo original da tocha
+        // Store torch original target
         if (torch != null)
         {
             originalTorchTarget = torch.CurrentTarget;
         }
         
-        // Armazena o alvo original da flor fonte
+        // Store source flower original target
         if (sourceFlower != null)
         {
             originalSourceTarget = sourceFlower.CurrentTarget;
         }
         
-        // Armazena a posição original
+        // Store original position
         originalPosition = transform.position;
         targetPosition = originalPosition;
         
-        // Configura estado inicial
+        // Set initial state
         UpdateVisualState();
+        
+        // Subscribe to dimension changes to handle platform state when player is on it
+        DimensionManager.OnDimensionChanged += OnDimensionChanged;
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe from dimension changes
+        DimensionManager.OnDimensionChanged -= OnDimensionChanged;
+    }
+    
+    /// <summary>
+    /// Called when dimension changes - handle platform deactivation if player is on it
+    /// </summary>
+    private void OnDimensionChanged(DimensionType newDimension)
+    {
+        // If player is on platform and we're changing to a dimension where this platform shouldn't work
+        if (playerOnPlatform && onlyWorkInCorrectDimension && newDimension != activeDimension)
+        {
+            Debug.Log($"[PLATFORM DEBUG] Dimension changed to {newDimension}. Platform {gameObject.name} belongs to {activeDimension}. Force deactivating platform since player is on it.");
+            
+            // Force deactivate the platform since it shouldn't work in the new dimension
+            if (isActivated)
+            {
+                DeactivatePlatform();
+            }
+        }
     }
 
     private void Update()
     {
-        // Anima o movimento da plataforma
+        // Animate platform movement
         if (isMoving)
         {
+            // Play movement sound once when movement starts
+            if (!hasPlayedMovementSound)
+            {
+                PlayMovementSound();
+                hasPlayedMovementSound = true;
+            }
+            
             transform.position = Vector3.Lerp(transform.position, targetPosition, animationSpeed * Time.deltaTime);
             
-            // Para o movimento quando está próximo o suficiente
+            // Stop moving when close enough
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
                 transform.position = targetPosition;
                 isMoving = false;
+                hasPlayedMovementSound = false; // Reset for next movement
             }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"[PLATFORM DEBUG] Algo entrou no trigger: {other.name} com tag: {other.tag}");
+        Debug.Log($"[PLATFORM DEBUG] Something entered trigger: {other.name} with tag: {other.tag}");
         
         if (other.CompareTag(playerTag) && !isActivated)
         {
-            Debug.Log($"[PLATFORM DEBUG] Jogador detectado! Ativando plataforma...");
+            // Check dimension before activating
+            if (onlyWorkInCorrectDimension && !IsInCorrectDimension())
+            {
+                Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} is in dimension {activeDimension}, but current dimension is {GetCurrentDimension()}. Platform will NOT activate.");
+                return;
+            }
+            
+            Debug.Log($"[PLATFORM DEBUG] Player detected in correct dimension! Activating platform...");
+            playerOnPlatform = true;
             ActivatePlatform();
         }
         else if (!other.CompareTag(playerTag))
         {
-            Debug.Log($"[PLATFORM DEBUG] Objeto {other.name} não tem a tag '{playerTag}'");
+            Debug.Log($"[PLATFORM DEBUG] Object {other.name} does not have tag '{playerTag}'");
         }
         else if (isActivated)
         {
-            Debug.Log($"[PLATFORM DEBUG] Plataforma já está ativada");
+            Debug.Log($"[PLATFORM DEBUG] Platform already activated");
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log($"[PLATFORM DEBUG] Algo saiu do trigger: {other.name}");
+        Debug.Log($"[PLATFORM DEBUG] Something exited trigger: {other.name}");
         
         if (other.CompareTag(playerTag) && isActivated && canBeDeactivated)
         {
-            Debug.Log($"[PLATFORM DEBUG] Jogador saiu! Desativando plataforma...");
+            // Check dimension before deactivating
+            if (onlyWorkInCorrectDimension && !IsInCorrectDimension())
+            {
+                Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} not in correct dimension, ignoring exit.");
+                return;
+            }
+            
+            Debug.Log($"[PLATFORM DEBUG] Player exited! Deactivating platform...");
+            playerOnPlatform = false;
             DeactivatePlatform();
         }
     }
 
     private void ActivatePlatform()
     {
-        Debug.Log($"[PLATFORM DEBUG] Tentando ativar plataforma {gameObject.name}");
+        Debug.Log($"[PLATFORM DEBUG] Trying to activate platform {gameObject.name}");
         
         isActivated = true;
-        Debug.Log($"[PLATFORM DEBUG] Estado alterado para ativado");
+        Debug.Log($"[PLATFORM DEBUG] State changed to activated");
         
         if (useCycleMode)
         {
-            // Modo: Ciclo de direções da flor
+            // Mode: Flower direction cycle
             if (flowerToCycle == null)
             {
-                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flor para ciclo não configurada!");
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flower to cycle not set!");
                 return;
             }
             
-            // Cicla para a próxima direção
+            // Cycle to next direction
             flowerToCycle.CycleToNextDirection();
-            Debug.Log($"[PLATFORM DEBUG] Flor {flowerToCycle.name} ciclou para direção: {flowerToCycle.CurrentDirectionName}");
+            Debug.Log($"[PLATFORM DEBUG] Flower {flowerToCycle.name} cycled to direction: {flowerToCycle.CurrentDirectionName}");
             
-            // Se a flor não estiver ativa, ativa ela
+            // If the flower is not active, activate it
             if (!flowerToCycle.IsActivated)
             {
                 flowerToCycle.ReceiveLight();
-                Debug.Log($"[PLATFORM DEBUG] Flor {flowerToCycle.name} ativada");
+                Debug.Log($"[PLATFORM DEBUG] Flower {flowerToCycle.name} activated");
             }
         }
         else if (useDirectFlowerConnection)
         {
-            // Modo: Conexão direta entre flores
+            // Mode: Direct connection between flowers
             if (sourceFlower == null || targetFlower == null)
             {
-                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flores não configuradas para conexão direta!");
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Flowers not set for direct connection!");
                 return;
             }
             
-            // Muda o alvo da flor fonte para a flor destino
+            // Change source flower target to destination flower
             sourceFlower.ChangeTarget(targetFlower.transform);
-            Debug.Log($"[PLATFORM DEBUG] Flor {sourceFlower.name} redirecionada para: {targetFlower.name}");
+            Debug.Log($"[PLATFORM DEBUG] Flower {sourceFlower.name} redirected to: {targetFlower.name}");
             
-            // Ativa a flor fonte se ela não estiver ativa
+            // Activate the source flower if it is not active
             if (!sourceFlower.IsActivated)
             {
                 sourceFlower.ReceiveLight();
-                Debug.Log($"[PLATFORM DEBUG] Flor {sourceFlower.name} ativada");
+                Debug.Log($"[PLATFORM DEBUG] Flower {sourceFlower.name} activated");
             }
         }
         else
         {
-            // Modo: Controle da tocha
+            // Mode: Torch control
             if (torch == null)
             {
-                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Tocha não configurada!");
+                Debug.LogWarning($"[PLATFORM DEBUG] Platform {gameObject.name}: Torch not set!");
                 return;
             }
             
-            // Muda o alvo da tocha
+            // Change torch target
             torch.SetTargetFlower(newTarget);
-            Debug.Log($"[PLATFORM DEBUG] Tocha redirecionada para: {(newTarget != null ? newTarget.name : "null")}");
+            Debug.Log($"[PLATFORM DEBUG] Torch redirected to: {(newTarget != null ? newTarget.name : "null")}");
         }
         
-        // Abaixa a plataforma
+        // Lower the platform
         targetPosition = originalPosition - Vector3.up * depthOffset;
         isMoving = true;
-        Debug.Log($"[PLATFORM DEBUG] Posição original: {originalPosition}, Nova posição: {targetPosition}");
+        Debug.Log($"[PLATFORM DEBUG] Original position: {originalPosition}, New position: {targetPosition}");
         
-        // Atualiza visual
+        // Update visuals
         UpdateVisualState();
-        Debug.Log($"[PLATFORM DEBUG] Visual atualizado");
+        Debug.Log($"[PLATFORM DEBUG] Visuals updated");
         
-        Debug.Log($"[PLATFORM DEBUG] Plataforma {gameObject.name} ativada com sucesso!");
+        Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} activated successfully!");
     }
 
     private void DeactivatePlatform()
@@ -201,79 +258,79 @@ public class Platform : MonoBehaviour
         
         if (useCycleMode)
         {
-            // Modo: Ciclo de direções - NÃO faz nada ao sair
-            Debug.Log($"Plataforma {gameObject.name} desativada! Modo ciclo - mantendo direção atual da flor {flowerToCycle?.name}");
-            // Não reseta a direção da flor!
+            // Mode: Direction cycle - do NOTHING on exit
+            Debug.Log($"Platform {gameObject.name} deactivated! Cycle mode - keeping current direction of flower {flowerToCycle?.name}");
+            // Do not reset flower direction!
         }
         else if (useDirectFlowerConnection)
         {
-            // Modo: Conexão direta entre flores
+            // Mode: Direct connection between flowers
             if (sourceFlower != null)
             {
-                // Restaura o alvo original da flor fonte
-                sourceFlower.ChangeTarget(originalSourceTarget);
-                Debug.Log($"Plataforma {gameObject.name} desativada! Flor {sourceFlower.name} restaurada para alvo original.");
+                // Restore original target of the source flower silently (no sound)
+                sourceFlower.ChangeTargetSilently(originalSourceTarget);
+                Debug.Log($"Platform {gameObject.name} deactivated! Flower {sourceFlower.name} restored to original target (silently).");
             }
         }
         else
         {
-            // Modo: Controle da tocha
+            // Mode: Torch control
             if (torch != null)
             {
-                // Restaura o alvo original da tocha
-                torch.SetTargetFlower(originalTorchTarget);
-                Debug.Log($"Plataforma {gameObject.name} desativada! Tocha restaurada para alvo original.");
+                // Restore original torch target silently (no activation sound)
+                torch.SetTargetFlowerSilently(originalTorchTarget);
+                Debug.Log($"Platform {gameObject.name} deactivated! Torch restored to original target (silently).");
             }
         }
         
-        // Volta a plataforma para a posição original
+        // Move platform back to original position
         targetPosition = originalPosition;
         isMoving = true;
         
-        // Atualiza visual
+        // Update visuals
         UpdateVisualState();
     }
 
     private void UpdateVisualState()
     {
-        Debug.Log($"[PLATFORM DEBUG] Atualizando visual - Estado ativado: {isActivated}");
+        Debug.Log($"[PLATFORM DEBUG] Updating visuals - Activated state: {isActivated}");
         
-        // Ativa/desativa efeito visual
+        // Toggle visual effect
         if (activatedEffect != null)
         {
             activatedEffect.SetActive(isActivated);
-            Debug.Log($"[PLATFORM DEBUG] Efeito ativado: {isActivated}");
+            Debug.Log($"[PLATFORM DEBUG] Effect enabled: {isActivated}");
         }
         
-        // Muda material se configurado
+        // Change material if configured
         if (platformRenderer != null)
         {
             if (isActivated && activatedMaterial != null)
             {
                 platformRenderer.material = activatedMaterial;
-                Debug.Log($"[PLATFORM DEBUG] Material mudado para ativado");
+                Debug.Log($"[PLATFORM DEBUG] Material changed to activated");
             }
             else if (!isActivated && deactivatedMaterial != null)
             {
                 platformRenderer.material = deactivatedMaterial;
-                Debug.Log($"[PLATFORM DEBUG] Material mudado para desativado");
+                Debug.Log($"[PLATFORM DEBUG] Material changed to deactivated");
             }
         }
         
-        // Muda modelo se configurado
+        // Toggle model if configured
         if (activatedModel != null && deactivatedModel != null)
         {
             activatedModel.SetActive(isActivated);
             deactivatedModel.SetActive(!isActivated);
-            Debug.Log($"[PLATFORM DEBUG] Modelos atualizados - Ativado: {isActivated}, Desativado: {!isActivated}");
+            Debug.Log($"[PLATFORM DEBUG] Models updated - Activated: {isActivated}, Deactivated: {!isActivated}");
         }
         else
         {
-            Debug.Log($"[PLATFORM DEBUG] Modelos não configurados - ActivatedModel: {(activatedModel != null ? "OK" : "NULL")}, DeactivatedModel: {(deactivatedModel != null ? "OK" : "NULL")}");
+            Debug.Log($"[PLATFORM DEBUG] Models not configured - ActivatedModel: {(activatedModel != null ? "OK" : "NULL")}, DeactivatedModel: {(deactivatedModel != null ? "OK" : "NULL")}");
         }
     }
 
-    // Método para configurar a tocha via script
+    // Method to configure torch via script
     public void SetTorch(Torch newTorch)
     {
         torch = newTorch;
@@ -283,19 +340,19 @@ public class Platform : MonoBehaviour
         }
     }
 
-    // Método para configurar o novo alvo via script
+    // Method to configure new target via script
     public void SetNewTarget(Transform target)
     {
         newTarget = target;
         
-        // Se a plataforma já está ativada, atualiza imediatamente
+        // If platform is already activated, update immediately
         if (isActivated && torch != null)
         {
             torch.SetTargetFlower(newTarget);
         }
     }
 
-    // Métodos para configurar modelos via script
+    // Methods to configure models via script
     public void SetActivatedModel(GameObject model)
     {
         activatedModel = model;
@@ -308,19 +365,19 @@ public class Platform : MonoBehaviour
         UpdateVisualState();
     }
 
-    // Método para configurar o offset de profundidade
+    // Method to configure depth offset
     public void SetDepthOffset(float offset)
     {
         depthOffset = offset;
     }
 
-    // Método para configurar a velocidade de animação
+    // Method to configure animation speed
     public void SetAnimationSpeed(float speed)
     {
         animationSpeed = speed;
     }
 
-    // Método para forçar ativação/desativação
+    // Methods to force activation/deactivation
     public void ForceActivate()
     {
         if (!isActivated)
@@ -339,7 +396,7 @@ public class Platform : MonoBehaviour
 
     private void OnValidate()
     {
-        // Garante que o collider seja trigger no editor
+        // Ensure collider is trigger in the editor
         Collider col = GetComponent<Collider>();
         if (col != null && !col.isTrigger)
         {
@@ -347,8 +404,75 @@ public class Platform : MonoBehaviour
         }
     }
 
-    // Propriedades para acesso externo
+    /// <summary>
+    /// Check if the platform is in the correct dimension to be activated
+    /// </summary>
+    private bool IsInCorrectDimension()
+    {
+        if (DimensionManager.Instance == null)
+        {
+            Debug.LogWarning($"[PLATFORM DEBUG] No DimensionManager found! Platform {gameObject.name} will work regardless of dimension.");
+            return true; // If no dimension manager, allow activation
+        }
+        
+        return DimensionManager.Instance.CurrentDimension == activeDimension;
+    }
+    
+    /// <summary>
+    /// Get the current dimension (for debug purposes)
+    /// </summary>
+    private DimensionType GetCurrentDimension()
+    {
+        if (DimensionManager.Instance == null)
+        {
+            return DimensionType.DimensionA; // Default
+        }
+        
+        return DimensionManager.Instance.CurrentDimension;
+    }
+    
+    /// <summary>
+    /// Manually set which dimension this platform belongs to
+    /// </summary>
+    public void SetDimension(DimensionType dimension)
+    {
+        activeDimension = dimension;
+        Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} assigned to dimension {dimension}");
+    }
+    
+    /// <summary>
+    /// Enable or disable dimension checking
+    /// </summary>
+    public void SetDimensionCheckEnabled(bool enabled)
+    {
+        onlyWorkInCorrectDimension = enabled;
+        Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} dimension checking: {(enabled ? "ENABLED" : "DISABLED")}");
+    }
+
+    /// <summary>
+    /// Play movement sound based on platform direction
+    /// </summary>
+    private void PlayMovementSound()
+    {
+        if (AudioManager.Instance == null)
+        {
+            Debug.LogWarning($"[PLATFORM AUDIO] AudioManager not found for platform {gameObject.name}!");
+            return;
+        }
+        
+        // Determine if platform is moving down (activated) or up (deactivated)
+        bool isMovingDown = (targetPosition.y < originalPosition.y);
+        
+        // Play the movement sound
+        AudioManager.Instance.PlayPlatformMovementSound(transform.position, isMovingDown);
+        
+        Debug.Log($"[PLATFORM AUDIO] Playing movement sound for platform {gameObject.name} - Moving {(isMovingDown ? "DOWN" : "UP")}");
+    }
+
+    // Properties for external access
     public bool IsActivated => isActivated;
     public Torch AssociatedTorch => torch;
     public Transform NewTarget => newTarget;
+    public DimensionType GetDimension => activeDimension;
+    public bool IsDimensionCheckEnabled => onlyWorkInCorrectDimension;
 }

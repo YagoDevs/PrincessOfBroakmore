@@ -62,32 +62,32 @@ public class DimensionObject : MonoBehaviour
 
     private void Start()
     {
-        // Define estado inicial
+        // Define initial state
         isCurrentlyActive = startActive;
         
-        // Se o DimensionManager já existe, aplica a dimensão atual imediatamente
+        // If DimensionManager already exists, apply the current dimension immediately
         if (DimensionManager.Instance != null)
         {
             ApplyDimensionState(DimensionManager.Instance.CurrentDimension, false);
         }
         else
         {
-            // Aplica estado inicial se não há manager ainda
+            // Apply initial state if there is no manager yet
             SetObjectState(isCurrentlyActive, false);
         }
         
-        // Inscreve-se no evento de mudança de dimensão
+        // Subscribe to dimension change event
         DimensionManager.OnDimensionChanged += OnDimensionChanged;
         
         if (showDebugInfo)
         {
-            Debug.Log($"{gameObject.name}: DimensionObject iniciado para dimensão {activeDimension}");
+            Debug.Log($"{gameObject.name}: DimensionObject started for dimension {activeDimension}");
         }
     }
 
     private void Update()
     {
-        // Processa animação de transição se estiver ativa
+        // Process transition animation if active
         if (isTransitioning && useTransitionAnimation)
         {
             ProcessTransition();
@@ -121,10 +121,10 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Aplica o estado correspondente à dimensão
+    /// Apply the state corresponding to the dimension
     /// </summary>
-    /// <param name="dimension">Dimensão atual</param>
-    /// <param name="animated">Se deve usar animação</param>
+    /// <param name="dimension">Current dimension</param>
+    /// <param name="animated">Whether to use animation</param>
     private void ApplyDimensionState(DimensionType dimension, bool animated = true)
     {
         bool shouldBeActive = (dimension == activeDimension);
@@ -136,10 +136,10 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Define o estado ativo/inativo do objeto
+    /// Set the object's active/inactive state
     /// </summary>
-    /// <param name="active">Se o objeto deve estar ativo</param>
-    /// <param name="animated">Se deve usar animação</param>
+    /// <param name="active">Whether the object should be active</param>
+    /// <param name="animated">Whether to use animation</param>
     private void SetObjectState(bool active, bool animated = true)
     {
         if (animated && useTransitionAnimation && Application.isPlaying)
@@ -148,7 +148,7 @@ public class DimensionObject : MonoBehaviour
         }
         else
         {
-            // Aplicação imediata
+            // Immediate application
             ApplyStateImmediate(active);
         }
         
@@ -156,9 +156,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Aplica o estado imediatamente sem animação
+    /// Apply the state immediately without animation
     /// </summary>
-    /// <param name="active">Estado ativo</param>
+    /// <param name="active">Active state</param>
     private void ApplyStateImmediate(bool active)
     {
         switch (hidingMode)
@@ -178,7 +178,7 @@ public class DimensionObject : MonoBehaviour
                 break;
         }
         
-        // Restaura escala original se necessário
+        // Restore original scale if necessary
         if (active)
         {
             transform.localScale = originalScale;
@@ -186,9 +186,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Inicia uma transição animada
+    /// Start an animated transition
     /// </summary>
-    /// <param name="targetActive">Estado alvo</param>
+    /// <param name="targetActive">Target state</param>
     private void StartTransition(bool targetActive)
     {
         if (isTransitioning)
@@ -200,7 +200,7 @@ public class DimensionObject : MonoBehaviour
         transitionTimer = 0f;
         isTransitioning = true;
         
-        // Se está aparecendo, garante que o objeto esteja visível para a animação
+        // If appearing, ensure the object is visible for the animation
         if (targetActive)
         {
             switch (hidingMode)
@@ -215,14 +215,14 @@ public class DimensionObject : MonoBehaviour
                     break;
                     
                 case HidingMode.SetTransparent:
-                    // Transparency será controlada na animação
+                    // Transparency will be controlled in the animation
                     break;
             }
         }
     }
 
     /// <summary>
-    /// Processa a animação de transição
+    /// Process the transition animation
     /// </summary>
     private void ProcessTransition()
     {
@@ -235,30 +235,30 @@ public class DimensionObject : MonoBehaviour
             return;
         }
 
-        // Inverte o progresso se está desaparecendo
+        // Reverse progress if disappearing
         float animationProgress = targetActiveState ? progress : (1f - progress);
         
-        // Aplica curvas de animação
+        // Apply animation curves
         float scaleValue = scaleCurve.Evaluate(animationProgress);
         float alphaValue = alphaCurve.Evaluate(animationProgress);
         
-        // Animação de escala
+        // Scale animation
         transform.localScale = originalScale * scaleValue;
         
-        // Animação de transparência para modo transparente
+        // Transparency animation for transparent mode
         if (hidingMode == HidingMode.SetTransparent)
         {
             SetTransparency(alphaValue);
         }
         else if (hidingMode == HidingMode.SetVisible)
         {
-            // Para modo visível, usa apenas transparência como animação
+            // For visible mode, only use transparency as animation
             SetTransparency(alphaValue);
         }
     }
 
     /// <summary>
-    /// Completa a transição
+    /// Complete the transition
     /// </summary>
     private void CompleteTransition()
     {
@@ -267,9 +267,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Controla a transparência dos sprites
+    /// Control sprite transparency
     /// </summary>
-    /// <param name="alpha">Valor de alpha (0-1)</param>
+    /// <param name="alpha">Alpha value (0-1)</param>
     private void SetTransparency(float alpha)
     {
         for (int i = 0; i < spriteRenderers.Length; i++)
@@ -284,9 +284,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Ativa/desativa colliders
+    /// Enable/disable colliders
     /// </summary>
-    /// <param name="enabled">Estado dos colliders</param>
+    /// <param name="enabled">Colliders state</param>
     private void SetColliders(bool enabled)
     {
         foreach (var collider in colliders2D)
@@ -303,9 +303,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Ativa/desativa renderers
+    /// Enable/disable renderers
     /// </summary>
-    /// <param name="enabled">Estado dos renderers</param>
+    /// <param name="enabled">Renderers state</param>
     private void SetRenderers(bool enabled)
     {
         foreach (var renderer in renderers)
@@ -316,9 +316,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Força a aplicação do estado para a dimensão atual
+    /// Force applying the state for the current dimension
     /// </summary>
-    [ContextMenu("Aplicar Estado Atual")]
+    [ContextMenu("Apply Current State")]
     public void ForceApplyCurrentState()
     {
         if (DimensionManager.Instance != null)
@@ -328,9 +328,9 @@ public class DimensionObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Alterna a dimensão ativa deste objeto
+    /// Toggle this object's active dimension
     /// </summary>
-    [ContextMenu("Alternar Dimensão Ativa")]
+    [ContextMenu("Toggle Active Dimension")]
     public void ToggleActiveDimension()
     {
         activeDimension = activeDimension == DimensionType.DimensionA ? 
@@ -344,13 +344,13 @@ public class DimensionObject : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Remove inscrição do evento ao destruir
+        // Remove event subscription on destroy
         DimensionManager.OnDimensionChanged -= OnDimensionChanged;
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Desenha indicador visual da dimensão ativa
+        // Draw visual indicator of the active dimension
         Gizmos.color = activeDimension == DimensionType.DimensionA ? Color.red : Color.blue;
         Gizmos.DrawWireCube(transform.position, transform.localScale);
     }

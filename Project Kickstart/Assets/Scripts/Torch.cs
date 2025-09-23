@@ -2,39 +2,39 @@ using UnityEngine;
 
 public class Torch : MonoBehaviour
 {
-    [Header("Configurações da Tocha")]
+    [Header("Torch Settings")]
     [SerializeField] private Transform targetFlower;
     [SerializeField] private LineRenderer lineRenderer;
     
-    [Header("Configurações Visuais")]
+    [Header("Visual Settings")]
     [SerializeField] private Color lightColor = Color.yellow;
     [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private Material lineMaterial;
     
-    [Header("Iluminação Natural")]
-    [SerializeField] private Light torchLight; // Luz da tocha
+    [Header("Natural Lighting")]
+    [SerializeField] private Light torchLight; // Torch light
     [SerializeField] private bool createTorchLight = true;
     [SerializeField] private float lightIntensity = 2f;
     [SerializeField] private float lightRange = 10f;
     [SerializeField] private bool flickerEffect = true;
     
-    [Header("Efeito de Chama")]
-    [SerializeField] private ParticleSystem flameParticles; // Partículas da chama
+    [Header("Flame Effect")]
+    [SerializeField] private ParticleSystem flameParticles; // Flame particles
     [SerializeField] private bool createFlameEffect = true;
     
-    [Header("Controle de Ativação")]
-    [SerializeField] private bool autoEmitOnStart = true; // Se deve emitir luz automaticamente no início
+    [Header("Activation Control")]
+    [SerializeField] private bool autoEmitOnStart = true; // Whether to emit light automatically on start
     
-    [Header("Sistema de Luz Volumétrica")]
+    [Header("Volumetric Light System")]
     [SerializeField] private bool useVolumetricLight = true;
     [SerializeField] private int volumeLayers = 5;
     [SerializeField] private float maxVolumeWidth = 0.5f;
     
-    // Componentes criados automaticamente
+    // Components created automatically
     private LineRenderer[] volumeLines;
     private ParticleSystem lightParticles;
     
-    // Variáveis para efeito de tremulação
+    // Variables for flicker effect
     private float originalIntensity;
     private float flickerTime;
 
@@ -44,10 +44,10 @@ public class Torch : MonoBehaviour
         SetupTorchLight();
         SetupFlameEffect();
         
-        // Só emite luz se autoEmitOnStart estiver marcado
+        // Only emit light if autoEmitOnStart is enabled
         if (autoEmitOnStart)
         {
-            EmitLightVisualOnly(); // Emite apenas o visual, sem ativar a flor
+            EmitLightVisualOnly(); // Emit visuals only, without activating the flower
         }
     }
 
@@ -59,7 +59,7 @@ public class Torch : MonoBehaviour
         }
         else
         {
-            // Sistema simples original
+            // Simple original system
             if (lineRenderer == null)
             {
                 lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -80,12 +80,12 @@ public class Torch : MonoBehaviour
     
     private void CreateVolumetricLightSystem()
     {
-        Debug.Log($"[TORCH VOLUMETRIC] Criando sistema de luz volumétrica para {gameObject.name}");
+        Debug.Log($"[TORCH VOLUMETRIC] Creating volumetric light system for {gameObject.name}");
         
         CreateVolumeLayers();
         CreateParticleSystem();
         
-        Debug.Log($"[TORCH VOLUMETRIC] Sistema criado com sucesso!");
+        Debug.Log($"[TORCH VOLUMETRIC] System created successfully!");
     }
     
     private void CreateVolumeLayers()
@@ -130,7 +130,7 @@ public class Torch : MonoBehaviour
             volumeLines[i] = layer;
         }
         
-        Debug.Log($"[TORCH VOLUMETRIC] {volumeLayers} camadas de volume criadas");
+        Debug.Log($"[TORCH VOLUMETRIC] {volumeLayers} volume layers created");
     }
     
     private Material CreateGlowMaterial(int layerIndex)
@@ -138,7 +138,7 @@ public class Torch : MonoBehaviour
         Material glowMat = new Material(Shader.Find("Sprites/Default"));
         glowMat.name = $"TorchAutoGlow_Layer_{layerIndex}";
         
-        // Usar a cor da tocha (amarelo), não roxa!
+        // Use the torch color (yellow), not purple!
         glowMat.color = lightColor;
         glowMat.SetFloat("_Mode", 2);
         glowMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
@@ -164,7 +164,7 @@ public class Torch : MonoBehaviour
         main.startLifetime = 2f;
         main.startSpeed = 1f;
         main.startSize = 0.05f;
-        main.startColor = new Color(lightColor.r, lightColor.g, lightColor.b, 0.7f); // Usar cor da tocha
+        main.startColor = new Color(lightColor.r, lightColor.g, lightColor.b, 0.7f); // Use torch color
         main.maxParticles = 30;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         
@@ -199,10 +199,26 @@ public class Torch : MonoBehaviour
         );
         colorOverLifetime.color = gradient;
         
-        Debug.Log($"[TORCH VOLUMETRIC] Sistema de partículas criado com cor {lightColor}");
+        Debug.Log($"[TORCH VOLUMETRIC] Particle system created with color {lightColor}");
     }
 
     private void EmitLight()
+    {
+        EmitLightInternal(false);
+    }
+    
+    /// <summary>
+    /// Emit light silently (for dimension changes)
+    /// </summary>
+    private void EmitLightSilently()
+    {
+        EmitLightInternal(true);
+    }
+    
+    /// <summary>
+    /// Internal method to emit light with optional sound suppression
+    /// </summary>
+    private void EmitLightInternal(bool suppressSound)
     {
         if (targetFlower == null)
         {
@@ -219,7 +235,7 @@ public class Torch : MonoBehaviour
             // Sistema simples original
             if (lineRenderer == null)
             {
-                Debug.LogWarning("Torch: LineRenderer não configurado!");
+                Debug.LogWarning("Torch: LineRenderer not configured!");
                 return;
             }
             
@@ -227,15 +243,22 @@ public class Torch : MonoBehaviour
             lineRenderer.SetPosition(1, targetFlower.position);
         }
 
-        // Ativa a primeira flor
+        // Activate the first flower (silently if requested)
         Flower flower = targetFlower.GetComponent<Flower>();
         if (flower != null)
         {
-            flower.ReceiveLight();
+            if (suppressSound)
+            {
+                flower.ReceiveLightSilently();
+            }
+            else
+            {
+                flower.ReceiveLight();
+            }
         }
         else
         {
-            Debug.LogWarning("Torch: O targetFlower não possui o componente Flower!");
+            Debug.LogWarning("Torch: targetFlower does not have Flower component!");
         }
     }
     
@@ -245,9 +268,9 @@ public class Torch : MonoBehaviour
         Vector3 endPos = targetFlower.position;
         float distance = Vector3.Distance(startPos, endPos);
         
-        Debug.Log($"[TORCH VOLUMETRIC] Emitindo luz volumétrica para {targetFlower.name}, cor: {lightColor}");
+        Debug.Log($"[TORCH VOLUMETRIC] Emitting volumetric light to {targetFlower.name}, color: {lightColor}");
         
-        // Configurar todas as camadas de volume
+        // Configure all volume layers
         if (volumeLines != null)
         {
             for (int i = 0; i < volumeLines.Length; i++)
@@ -261,7 +284,7 @@ public class Torch : MonoBehaviour
             }
         }
         
-        // Configurar sistema de partículas
+        // Configure the particle system
         if (lightParticles != null)
         {
             Vector3 midPoint = Vector3.Lerp(startPos, endPos, 0.5f);
@@ -278,7 +301,7 @@ public class Torch : MonoBehaviour
 
     private void Update()
     {
-        // Atualizar sistema de luz
+        // Update light system
         if (targetFlower != null)
         {
             if (useVolumetricLight)
@@ -292,7 +315,7 @@ public class Torch : MonoBehaviour
             }
         }
         
-        // Efeito de tremulação da luz
+        // Light flicker effect
         if (flickerEffect && torchLight != null)
         {
             FlickerLight();
@@ -305,7 +328,7 @@ public class Torch : MonoBehaviour
         Vector3 endPos = targetFlower.position;
         float distance = Vector3.Distance(startPos, endPos);
         
-        // Atualizar camadas de volume
+        // Update volume layers
         if (volumeLines != null)
         {
             for (int i = 0; i < volumeLines.Length; i++)
@@ -315,7 +338,7 @@ public class Torch : MonoBehaviour
                     volumeLines[i].SetPosition(0, startPos);
                     volumeLines[i].SetPosition(1, endPos);
                     
-                    // Animação de pulsação
+                    // Pulsating animation
                     float pulse = Mathf.Sin(Time.time * 1.5f + i * 0.2f) * 0.1f + 1f;
                     Color currentColor = volumeLines[i].startColor;
                     Color baseColor = lightColor;
@@ -326,7 +349,7 @@ public class Torch : MonoBehaviour
             }
         }
         
-        // Atualizar partículas
+        // Update particles
         if (lightParticles != null && lightParticles.emission.enabled)
         {
             Vector3 midPoint = Vector3.Lerp(startPos, endPos, 0.5f);
@@ -338,29 +361,77 @@ public class Torch : MonoBehaviour
         }
     }
 
-    // Método para configurar a flor alvo via script
+    // Method to configure the target flower via script
     public void SetTargetFlower(Transform newTarget)
     {
-        targetFlower = newTarget;
-        EmitLight();
+        SetTargetFlowerInternal(newTarget, false);
     }
     
-    // Método para ativar a tocha manualmente
+    /// <summary>
+    /// Set target flower without activating it (for platform deactivation)
+    /// </summary>
+    public void SetTargetFlowerSilently(Transform newTarget)
+    {
+        SetTargetFlowerInternal(newTarget, true);
+    }
+    
+    /// <summary>
+    /// Internal method to set target with optional activation suppression
+    /// </summary>
+    private void SetTargetFlowerInternal(Transform newTarget, bool suppressActivation)
+    {
+        targetFlower = newTarget;
+        
+        if (!suppressActivation)
+        {
+            EmitLight();
+        }
+        else
+        {
+            // Just emit visual light without activating the flower
+            EmitLightVisualOnly();
+        }
+    }
+    
+    // Method to manually activate the torch
     public void ActivateTorch()
     {
-        EmitLight();
+        ActivateTorchInternal(false);
     }
     
-    // Método para emitir apenas o visual da luz (sem ativar a flor)
+    /// <summary>
+    /// Activate torch silently (for dimension changes - no sound)
+    /// </summary>
+    public void ActivateTorchSilently()
+    {
+        ActivateTorchInternal(true);
+    }
+    
+    /// <summary>
+    /// Internal method to activate torch with optional sound suppression
+    /// </summary>
+    private void ActivateTorchInternal(bool suppressSound)
+    {
+        if (suppressSound)
+        {
+            EmitLightSilently();
+        }
+        else
+        {
+            EmitLight();
+        }
+    }
+    
+    // Method to emit only the light visual (without activating the flower)
     public void EmitLightVisualOnly()
     {
         if (targetFlower == null)
         {
-            Debug.LogWarning("Torch: targetFlower não configurado!");
+            Debug.LogWarning("Torch: targetFlower not configured!");
             return;
         }
 
-        Debug.Log($"[TORCH] Emitindo luz visual inicial para {targetFlower.name} (sem ativar)");
+        Debug.Log($"[TORCH] Emitting initial visual light to {targetFlower.name} (without activating)");
 
         if (useVolumetricLight)
         {
@@ -368,10 +439,10 @@ public class Torch : MonoBehaviour
         }
         else
         {
-            // Sistema simples original
+            // Simple original system
             if (lineRenderer == null)
             {
-                Debug.LogWarning("Torch: LineRenderer não configurado!");
+                Debug.LogWarning("Torch: LineRenderer not configured!");
                 return;
             }
             
@@ -379,20 +450,20 @@ public class Torch : MonoBehaviour
             lineRenderer.SetPosition(1, targetFlower.position);
         }
         
-        // NÃO ativa a flor - apenas mostra o visual da luz
+        // Does NOT activate the flower - only shows the visual light
     }
     
-    // Propriedade para acessar o alvo atual
+    // Property to access the current target
     public Transform CurrentTarget => targetFlower;
 
     private void SetupTorchLight()
     {
         if (createTorchLight && torchLight == null)
         {
-            // Cria automaticamente um Light component
+            // Automatically creates a Light component
             GameObject lightObject = new GameObject("TorchLight");
             lightObject.transform.SetParent(transform);
-            lightObject.transform.localPosition = Vector3.up * 0.5f; // Um pouco acima da tocha
+            lightObject.transform.localPosition = Vector3.up * 0.5f; // Slightly above the torch
             
             torchLight = lightObject.AddComponent<Light>();
         }
@@ -403,7 +474,7 @@ public class Torch : MonoBehaviour
             torchLight.color = lightColor;
             torchLight.intensity = lightIntensity;
             torchLight.range = lightRange;
-            torchLight.shadows = LightShadows.Soft; // Sombras suaves
+            torchLight.shadows = LightShadows.Soft; // Soft shadows
             
             originalIntensity = lightIntensity;
         }
@@ -469,14 +540,14 @@ public class Torch : MonoBehaviour
     {
         flickerTime += Time.deltaTime;
         
-        // Cria um efeito de tremulação usando Perlin noise
+        // Create a flicker effect using Perlin noise
         float flicker = Mathf.PerlinNoise(flickerTime * 5f, 0f);
         flicker = Mathf.Clamp01(flicker);
         
-        // Varia a intensidade entre 70% e 100% do valor original
+        // Vary intensity between 70% and 100% of the original value
         torchLight.intensity = originalIntensity * (0.7f + flicker * 0.3f);
         
-        // Varia levemente a cor para dar mais realismo
+        // Slightly vary the color to add realism
         float colorVariation = Mathf.PerlinNoise(flickerTime * 3f, 100f) * 0.1f;
         Color baseColor = lightColor;
         torchLight.color = new Color(
@@ -489,7 +560,7 @@ public class Torch : MonoBehaviour
 
     private void OnValidate()
     {
-        // Atualiza as configurações no editor
+        // Update settings in the editor
         if (lineRenderer != null)
         {
             ConfigureLineRenderer();

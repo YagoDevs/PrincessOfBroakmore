@@ -2,27 +2,27 @@ using UnityEngine;
 
 public class MovableFlower : MonoBehaviour
 {
-    [Header("Configurações da Flor Móvel")]
-    [SerializeField] private Flower flower; // Referência à flor nesta caixa
-    [SerializeField] private Transform[] possibleTargets; // Alvos possíveis (paredes, porta, etc.)
+    [Header("Movable Flower Settings")]
+    [SerializeField] private Flower flower; // Reference to the flower in this box
+    [SerializeField] private Transform[] possibleTargets; // Possible targets (walls, door, etc.)
     [SerializeField] private int currentTargetIndex = 0;
     
-    [Header("Configurações de Movimento")]
-    [SerializeField] private float detectionRange = 2f; // Distância para detectar alvos
-    [SerializeField] private LayerMask targetLayer = 1; // Layer dos alvos
+    [Header("Movement Settings")]
+    [SerializeField] private float detectionRange = 2f; // Distance to detect targets
+    [SerializeField] private LayerMask targetLayer = 1; // Layer of targets
     
-    [Header("Controle Manual")]
-    [SerializeField] private KeyCode nextTargetKey = KeyCode.E; // Tecla para mudar alvo
-    [SerializeField] private bool useManualControl = true; // Se pode mudar alvo manualmente
+    [Header("Manual Control")]
+    [SerializeField] private KeyCode nextTargetKey = KeyCode.E; // Key to change target
+    [SerializeField] private bool useManualControl = true; // Whether target can be changed manually
     
-    [Header("Detecção Automática")]
-    [SerializeField] private bool useAutoDetection = true; // Se detecta alvos automaticamente
-    [SerializeField] private bool prioritizeDoors = true; // Se prioriza portas quando próximo
-    [SerializeField] private float doorPriorityDistance = 3f; // Distância para priorizar portas
+    [Header("Automatic Detection")]
+    [SerializeField] private bool useAutoDetection = true; // Whether to detect targets automatically
+    [SerializeField] private bool prioritizeDoors = true; // Whether to prioritize doors when nearby
+    [SerializeField] private float doorPriorityDistance = 3f; // Distance to prioritize doors
     
-    [Header("Ativação Automática")]
-    [SerializeField] private bool autoActivateWhenReceivingLight = true; // Se ativa automaticamente ao receber luz
-    [SerializeField] private float lightCheckInterval = 0.1f; // Intervalo para verificar luz
+    [Header("Automatic Activation")]
+    [SerializeField] private bool autoActivateWhenReceivingLight = true; // Whether to auto-activate when receiving light
+    [SerializeField] private float lightCheckInterval = 0.1f; // Interval to check for light
     
     private Vector3 lastPosition;
     private bool wasReceivingLight = false;
@@ -30,7 +30,7 @@ public class MovableFlower : MonoBehaviour
     
     private void Start()
     {
-        // Configurar flor se não estiver configurada
+        // Configure flower if not set
         if (flower == null)
         {
             flower = GetComponentInChildren<Flower>();
@@ -38,41 +38,41 @@ public class MovableFlower : MonoBehaviour
         
         if (flower == null)
         {
-            Debug.LogWarning($"MovableFlower {gameObject.name}: Flor não encontrada!");
+            Debug.LogWarning($"MovableFlower {gameObject.name}: Flower not found!");
             return;
         }
         
-        // Configurar alvo inicial
+        // Configure initial target
         UpdateFlowerTarget();
         
         lastPosition = transform.position;
         
-        Debug.Log($"[MOVABLE FLOWER] {gameObject.name} inicializada com {possibleTargets.Length} alvos possíveis");
+        Debug.Log($"[MOVABLE FLOWER] {gameObject.name} initialized with {possibleTargets.Length} possible targets");
     }
     
     private void Update()
     {
-        // Verificar se está recebendo luz (ativação automática)
+        // Check if receiving light (automatic activation)
         if (autoActivateWhenReceivingLight && Time.time > lastLightCheck + lightCheckInterval)
         {
             CheckForIncomingLight();
             lastLightCheck = Time.time;
         }
         
-        // Verificar se a caixa se moveu
+        // Check if the box moved
         if (Vector3.Distance(transform.position, lastPosition) > 0.01f)
         {
             OnBoxMoved();
             lastPosition = transform.position;
         }
         
-        // Controle manual de mudança de alvo (só se a flor estiver ativa)
+        // Manual target change (only if the flower is active)
         if (useManualControl && Input.GetKeyDown(nextTargetKey) && flower != null && flower.IsActivated)
         {
             CycleToNextTarget();
         }
         
-        // Detecção automática de alvos próximos
+        // Automatic detection of nearby targets
         if (useAutoDetection)
         {
             DetectNearbyTargets();
@@ -83,14 +83,14 @@ public class MovableFlower : MonoBehaviour
     {
         bool isReceivingLight = false;
         
-        // Verificar se alguma flor está emitindo luz para esta caixa/flor
+        // Check if any flower is emitting light to this box/flower
         Flower[] allFlowers = FindObjectsOfType<Flower>();
         
         foreach (Flower otherFlower in allFlowers)
         {
             if (otherFlower != flower && otherFlower.IsActivated)
             {
-                // Verificar se esta flor/caixa é o alvo da outra flor
+                // Check if this flower/box is the target of the other flower
                 if (otherFlower.CurrentTarget == transform || 
                     (flower != null && otherFlower.CurrentTarget == flower.transform))
                 {
@@ -100,12 +100,12 @@ public class MovableFlower : MonoBehaviour
             }
         }
         
-        // Se começou a receber luz, ativar a flor
+        // If it started receiving light, activate the flower
         if (isReceivingLight && !wasReceivingLight)
         {
             ActivateFlower();
         }
-        // Se parou de receber luz, desativar a flor
+        // If it stopped receiving light, deactivate the flower
         else if (!isReceivingLight && wasReceivingLight)
         {
             DeactivateFlower();
@@ -119,7 +119,7 @@ public class MovableFlower : MonoBehaviour
         if (flower != null && !flower.IsActivated)
         {
             flower.ReceiveLight();
-            Debug.Log($"[MOVABLE FLOWER] Flor da caixa {gameObject.name} ativada automaticamente!");
+            Debug.Log($"[MOVABLE FLOWER] Box flower {gameObject.name} automatically activated!");
         }
     }
     
@@ -128,21 +128,21 @@ public class MovableFlower : MonoBehaviour
         if (flower != null && flower.IsActivated)
         {
             flower.DeactivateFlower();
-            Debug.Log($"[MOVABLE FLOWER] Flor da caixa {gameObject.name} desativada (perdeu luz de entrada)");
+            Debug.Log($"[MOVABLE FLOWER] Box flower {gameObject.name} deactivated (lost incoming light)");
         }
     }
     
     private void OnBoxMoved()
     {
-        Debug.Log($"[MOVABLE FLOWER] Caixa {gameObject.name} se moveu para {transform.position}");
+        Debug.Log($"[MOVABLE FLOWER] Box {gameObject.name} moved to {transform.position}");
         
-        // Se usar detecção automática, verificar alvos próximos
+        // If using automatic detection, check nearby targets
         if (useAutoDetection)
         {
             CheckNearbyTargetsAndSwitch();
         }
         
-        // Atualizar alvo da flor (mantém a mesma direção)
+        // Update flower target (keeps the same direction)
         UpdateFlowerTarget();
     }
     
@@ -153,7 +153,7 @@ public class MovableFlower : MonoBehaviour
         currentTargetIndex = (currentTargetIndex + 1) % possibleTargets.Length;
         UpdateFlowerTarget();
         
-        Debug.Log($"[MOVABLE FLOWER] Mudou para alvo {currentTargetIndex}: {GetCurrentTargetName()}");
+        Debug.Log($"[MOVABLE FLOWER] Switched to target {currentTargetIndex}: {GetCurrentTargetName()}");
     }
     
     private void UpdateFlowerTarget()
@@ -165,14 +165,14 @@ public class MovableFlower : MonoBehaviour
         {
             flower.ChangeTarget(currentTarget);
             
-            // Se a flor estiver ativa, força a atualização da luz
+            // If the flower is active, force light update
             if (flower.IsActivated)
             {
-                // A flor vai automaticamente atualizar sua luz para o novo alvo
-                Debug.Log($"[MOVABLE FLOWER] Luz redirecionada para {currentTarget.name}");
+                // The flower will automatically update its light to the new target
+                Debug.Log($"[MOVABLE FLOWER] Light redirected to {currentTarget.name}");
             }
             
-            // Verificar se o alvo atual é uma porta
+            // Check if the current target is a door
             CheckIfTargetIsDoor(currentTarget);
         }
     }
@@ -181,28 +181,28 @@ public class MovableFlower : MonoBehaviour
     {
         if (possibleTargets.Length == 0) 
         {
-            Debug.LogWarning($"[MOVABLE FLOWER] {gameObject.name}: Nenhum alvo configurado!");
+            Debug.LogWarning($"[MOVABLE FLOWER] {gameObject.name}: No target configured!");
             return;
         }
         
-        // Se priorizar portas, verificar se há uma porta próxima
+        // If prioritizing doors, check if there is a nearby door
         if (prioritizeDoors)
         {
             int doorIndex = FindNearestDoor();
             if (doorIndex != -1 && doorIndex != currentTargetIndex)
             {
-                Debug.Log($"[MOVABLE FLOWER] 🔄 Mudando de alvo {currentTargetIndex} ({GetCurrentTargetName()}) para porta {doorIndex}");
+                Debug.Log($"[MOVABLE FLOWER] 🔄 Changing from target {currentTargetIndex} ({GetCurrentTargetName()}) to door {doorIndex}");
                 currentTargetIndex = doorIndex;
-                Debug.Log($"[MOVABLE FLOWER] ✅ Mudança automática para porta próxima: {GetCurrentTargetName()}");
+                Debug.Log($"[MOVABLE FLOWER] ✅ Automatic switch to nearby door: {GetCurrentTargetName()}");
                 return;
             }
             else if (doorIndex != -1)
             {
-                Debug.Log($"[MOVABLE FLOWER] ✅ Já está apontando para a porta mais próxima: {GetCurrentTargetName()}");
+                Debug.Log($"[MOVABLE FLOWER] ✅ Already pointing to the nearest door: {GetCurrentTargetName()}");
             }
         }
         
-        // Buscar novos alvos próximos
+        // Search for new nearby targets
         DetectNearbyTargets();
     }
     
@@ -211,22 +211,22 @@ public class MovableFlower : MonoBehaviour
         int nearestDoorIndex = -1;
         float nearestDistance = float.MaxValue;
         
-        Debug.Log($"[MOVABLE FLOWER] Procurando portas próximas... Distância máxima: {doorPriorityDistance}");
-        Debug.Log($"[MOVABLE FLOWER] Lista de alvos: {string.Join(", ", System.Array.ConvertAll(possibleTargets, t => t?.name ?? "null"))}");
+        Debug.Log($"[MOVABLE FLOWER] Searching for nearby doors... Max distance: {doorPriorityDistance}");
+        Debug.Log($"[MOVABLE FLOWER] Target list: {string.Join(", ", System.Array.ConvertAll(possibleTargets, t => t?.name ?? "null"))}");
         
         for (int i = 0; i < possibleTargets.Length; i++)
         {
             if (possibleTargets[i] == null) 
             {
-                Debug.Log($"[MOVABLE FLOWER] Alvo {i} é null!");
+                Debug.Log($"[MOVABLE FLOWER] Target {i} is null!");
                 continue;
             }
             
-            // Verificar se é uma porta
+            // Check if it is a door
             Door door = possibleTargets[i].GetComponent<Door>();
             float distance = Vector3.Distance(transform.position, possibleTargets[i].position);
             
-            Debug.Log($"[MOVABLE FLOWER] Alvo {i}: {possibleTargets[i].name} - Distância: {distance:F2} - É porta: {(door != null)}");
+            Debug.Log($"[MOVABLE FLOWER] Target {i}: {possibleTargets[i].name} - Distance: {distance:F2} - Is door: {(door != null)}");
             
             if (door != null)
             {
@@ -234,23 +234,23 @@ public class MovableFlower : MonoBehaviour
                 {
                     nearestDistance = distance;
                     nearestDoorIndex = i;
-                    Debug.Log($"[MOVABLE FLOWER] Nova porta mais próxima: {possibleTargets[i].name} (distância: {distance:F2})");
+                    Debug.Log($"[MOVABLE FLOWER] New nearest door: {possibleTargets[i].name} (distance: {distance:F2})");
                 }
             }
         }
         
-        Debug.Log($"[MOVABLE FLOWER] Porta mais próxima encontrada: {(nearestDoorIndex != -1 ? possibleTargets[nearestDoorIndex].name : "Nenhuma")}");
+        Debug.Log($"[MOVABLE FLOWER] Nearest door found: {(nearestDoorIndex != -1 ? possibleTargets[nearestDoorIndex].name : "None")}");
         return nearestDoorIndex;
     }
     
     private void DetectNearbyTargets()
     {
-        // Buscar alvos próximos automaticamente
+        // Automatically search for nearby targets
         Collider[] nearbyObjects = Physics.OverlapSphere(transform.position, detectionRange, targetLayer);
         
         foreach (Collider obj in nearbyObjects)
         {
-            // Verificar se é um alvo válido que não está na lista
+            // Check if it is a valid target that is not in the list
             if (IsValidTarget(obj.transform) && !IsTargetInList(obj.transform))
             {
                 AddTarget(obj.transform);
@@ -260,7 +260,7 @@ public class MovableFlower : MonoBehaviour
     
     private bool IsValidTarget(Transform target)
     {
-        // Verificar se o objeto tem componentes que indicam que é um alvo válido
+        // Check if the object has components indicating it is a valid target
         return target.GetComponent<Door>() != null || 
                target.CompareTag("LightTarget") || 
                target.name.ToLower().Contains("target");
@@ -277,7 +277,7 @@ public class MovableFlower : MonoBehaviour
     
     private void AddTarget(Transform newTarget)
     {
-        // Expandir array de alvos
+        // Expand target array
         Transform[] newArray = new Transform[possibleTargets.Length + 1];
         for (int i = 0; i < possibleTargets.Length; i++)
         {
@@ -286,7 +286,7 @@ public class MovableFlower : MonoBehaviour
         newArray[possibleTargets.Length] = newTarget;
         possibleTargets = newArray;
         
-        Debug.Log($"[MOVABLE FLOWER] Novo alvo adicionado: {newTarget.name}");
+        Debug.Log($"[MOVABLE FLOWER] New target added: {newTarget.name}");
     }
     
     private void CheckIfTargetIsDoor(Transform target)
@@ -294,19 +294,19 @@ public class MovableFlower : MonoBehaviour
         Door door = target.GetComponent<Door>();
         if (door != null)
         {
-            Debug.Log($"[MOVABLE FLOWER] Luz apontando para porta {door.name}!");
-            // A porta será ativada automaticamente pelo sistema de luz
+            Debug.Log($"[MOVABLE FLOWER] Light pointing to door {door.name}!");
+            // The door will be activated automatically by the light system
         }
     }
     
     private string GetCurrentTargetName()
     {
-        if (possibleTargets.Length == 0) return "Nenhum";
+        if (possibleTargets.Length == 0) return "None";
         Transform target = possibleTargets[currentTargetIndex];
         return target != null ? target.name : "null";
     }
     
-    // Métodos públicos para controle externo
+    // Public methods for external control
     public void SetTargetIndex(int index)
     {
         if (index >= 0 && index < possibleTargets.Length)
@@ -330,28 +330,28 @@ public class MovableFlower : MonoBehaviour
         return possibleTargets[currentTargetIndex];
     }
     
-    // Visualização no editor
+    // Editor visualization
     private void OnDrawGizmosSelected()
     {
-        // Desenhar range de detecção geral
+        // Draw general detection range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
         
-        // Desenhar range de prioridade para portas
+        // Draw priority range for doors
         if (prioritizeDoors)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, doorPriorityDistance);
         }
         
-        // Desenhar linhas para alvos possíveis
+        // Draw lines for possible targets
         if (possibleTargets != null)
         {
             for (int i = 0; i < possibleTargets.Length; i++)
             {
                 if (possibleTargets[i] != null)
                 {
-                    // Cor especial para portas
+                    // Special color for doors
                     Door door = possibleTargets[i].GetComponent<Door>();
                     if (door != null)
                     {
@@ -364,7 +364,7 @@ public class MovableFlower : MonoBehaviour
                     
                     Gizmos.DrawLine(transform.position, possibleTargets[i].position);
                     
-                    // Desenhar esfera no alvo se for o atual
+                    // Draw a sphere at the target if it is the current one
                     if (i == currentTargetIndex)
                     {
                         Gizmos.DrawWireSphere(possibleTargets[i].position, 0.5f);
