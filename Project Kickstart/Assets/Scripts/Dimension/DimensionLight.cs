@@ -159,7 +159,7 @@ public class DimensionLight : MonoBehaviour
             Debug.Log($"[DIMENSION LIGHT] Activating light components for {gameObject.name}");
         }
         
-        // Activate flower
+        // Activate flower (silently during dimension change)
         if (controlFlowerActivation && flower != null)
         {
             // Only reactivate if it was active before, or if it's a fresh start
@@ -167,17 +167,17 @@ public class DimensionLight : MonoBehaviour
             {
                 if (!flower.IsActivated)
                 {
-                    flower.ReceiveLight();
-                    if (showDebugInfo) Debug.Log($"[DIMENSION LIGHT] Flower {flower.name} reactivated");
+                    flower.ReceiveLightSilently(); // Silent activation during dimension change
+                    if (showDebugInfo) Debug.Log($"[DIMENSION LIGHT] Flower {flower.name} reactivated (silently)");
                 }
             }
         }
         
-        // Activate torch
+        // Activate torch (silently during dimension change)
         if (controlTorchLight && torch != null)
         {
-            torch.ActivateTorch();
-            if (showDebugInfo) Debug.Log($"[DIMENSION LIGHT] Torch {torch.name} activated");
+            torch.ActivateTorchSilently(); // Silent activation during dimension change
+            if (showDebugInfo) Debug.Log($"[DIMENSION LIGHT] Torch {torch.name} activated (silently)");
         }
         
         // Activate Unity lights

@@ -43,6 +43,7 @@ public class Platform : MonoBehaviour
     private Vector3 targetPosition; // Target position of the platform
     private bool isMoving = false; // Whether it is moving
     private bool playerOnPlatform = false; // Track if player is currently on platform
+    private bool hasPlayedMovementSound = false; // Track if movement sound has been played for current movement
 
     private void Start()
     {
@@ -113,6 +114,13 @@ public class Platform : MonoBehaviour
         // Animate platform movement
         if (isMoving)
         {
+            // Play movement sound once when movement starts
+            if (!hasPlayedMovementSound)
+            {
+                PlayMovementSound();
+                hasPlayedMovementSound = true;
+            }
+            
             transform.position = Vector3.Lerp(transform.position, targetPosition, animationSpeed * Time.deltaTime);
             
             // Stop moving when close enough
@@ -120,6 +128,7 @@ public class Platform : MonoBehaviour
             {
                 transform.position = targetPosition;
                 isMoving = false;
+                hasPlayedMovementSound = false; // Reset for next movement
             }
         }
     }
@@ -258,9 +267,9 @@ public class Platform : MonoBehaviour
             // Mode: Direct connection between flowers
             if (sourceFlower != null)
             {
-                // Restore original target of the source flower
-                sourceFlower.ChangeTarget(originalSourceTarget);
-                Debug.Log($"Platform {gameObject.name} deactivated! Flower {sourceFlower.name} restored to original target.");
+                // Restore original target of the source flower silently (no sound)
+                sourceFlower.ChangeTargetSilently(originalSourceTarget);
+                Debug.Log($"Platform {gameObject.name} deactivated! Flower {sourceFlower.name} restored to original target (silently).");
             }
         }
         else
@@ -268,9 +277,9 @@ public class Platform : MonoBehaviour
             // Mode: Torch control
             if (torch != null)
             {
-                // Restore original torch target
-                torch.SetTargetFlower(originalTorchTarget);
-                Debug.Log($"Platform {gameObject.name} deactivated! Torch restored to original target.");
+                // Restore original torch target silently (no activation sound)
+                torch.SetTargetFlowerSilently(originalTorchTarget);
+                Debug.Log($"Platform {gameObject.name} deactivated! Torch restored to original target (silently).");
             }
         }
         
@@ -438,6 +447,26 @@ public class Platform : MonoBehaviour
     {
         onlyWorkInCorrectDimension = enabled;
         Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} dimension checking: {(enabled ? "ENABLED" : "DISABLED")}");
+    }
+
+    /// <summary>
+    /// Play movement sound based on platform direction
+    /// </summary>
+    private void PlayMovementSound()
+    {
+        if (AudioManager.Instance == null)
+        {
+            Debug.LogWarning($"[PLATFORM AUDIO] AudioManager not found for platform {gameObject.name}!");
+            return;
+        }
+        
+        // Determine if platform is moving down (activated) or up (deactivated)
+        bool isMovingDown = (targetPosition.y < originalPosition.y);
+        
+        // Play the movement sound
+        AudioManager.Instance.PlayPlatformMovementSound(transform.position, isMovingDown);
+        
+        Debug.Log($"[PLATFORM AUDIO] Playing movement sound for platform {gameObject.name} - Moving {(isMovingDown ? "DOWN" : "UP")}");
     }
 
     // Properties for external access

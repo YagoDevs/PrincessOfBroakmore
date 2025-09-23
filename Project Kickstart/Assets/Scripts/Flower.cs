@@ -37,6 +37,9 @@ public class Flower : MonoBehaviour
     [SerializeField] private bool isActivated = false;
     [SerializeField] private bool autoActivateOnStart = false; // Whether to auto-activate at start
     [SerializeField] private bool autoChainActivation = false; // Whether to automatically activate the next flower
+    
+    // Audio control
+    private bool suppressEmissionSound = false; // Flag to suppress emission sound during target changes
 
     private void Start()
     {
@@ -286,9 +289,31 @@ public class Flower : MonoBehaviour
 
     public void ReceiveLight()
     {
+        ReceiveLightInternal(false);
+    }
+    
+    /// <summary>
+    /// Receive light silently (for dimension changes - no sound)
+    /// </summary>
+    public void ReceiveLightSilently()
+    {
+        ReceiveLightInternal(true);
+    }
+    
+    /// <summary>
+    /// Internal method to receive light with optional sound suppression
+    /// </summary>
+    private void ReceiveLightInternal(bool suppressSound)
+    {
         if (isActivated) return; // Evita ativação múltipla
         
         isActivated = true;
+        
+        // Play reception sound (indicates correct path in puzzle) - only if not suppressed
+        if (AudioManager.Instance != null && !suppressSound)
+        {
+            AudioManager.Instance.PlayFlowerLightReceptionSound(transform.position, gameObject.name);
+        }
         
         // Activate visual effect
         if (lightEffect != null)
@@ -296,10 +321,17 @@ public class Flower : MonoBehaviour
             lightEffect.SetActive(true);
         }
         
+        // Temporarily suppress emission sound for dimension changes
+        bool originalSuppression = suppressEmissionSound;
+        suppressEmissionSound = suppressSound;
+        
         // Emit light to the next target if it exists
         EmitLightToTarget();
         
-        Debug.Log($"Flower {gameObject.name} was activated!");
+        // Restore original suppression state
+        suppressEmissionSound = originalSuppression;
+        
+        Debug.Log($"Flower {gameObject.name} was activated{(suppressSound ? " (silently)" : "")}!");
     }
 
     private void EmitLightToTarget()
@@ -308,6 +340,23 @@ public class Flower : MonoBehaviour
         {
             Debug.Log($"Flor {gameObject.name}: Sem alvo para emitir luz.");
             return;
+        }
+
+        // Play emission sound based on target type (only if not suppressed)
+        if (AudioManager.Instance != null && !suppressEmissionSound)
+        {
+            // Check if target is another flower
+            Flower targetFlower = currentTarget.GetComponent<Flower>();
+            if (targetFlower != null)
+            {
+                // Target is a flower - correct puzzle path!
+                AudioManager.Instance.PlayFlowerEmissionToFlowerSound(transform.position, currentTarget.name);
+            }
+            else
+            {
+                // Target is an object (door, box, etc.)
+                AudioManager.Instance.PlayFlowerEmissionToObjectSound(transform.position, currentTarget.name);
+            }
         }
 
         if (useVolumetricLight)
@@ -431,6 +480,22 @@ public class Flower : MonoBehaviour
 
     public void ChangeTarget(Transform newTarget)
     {
+        ChangeTargetInternal(newTarget, false);
+    }
+    
+    /// <summary>
+    /// Change target without playing emission sound (for platform deactivation)
+    /// </summary>
+    public void ChangeTargetSilently(Transform newTarget)
+    {
+        ChangeTargetInternal(newTarget, true);
+    }
+    
+    /// <summary>
+    /// Internal method to change target with optional sound suppression
+    /// </summary>
+    private void ChangeTargetInternal(Transform newTarget, bool suppressSound)
+    {
         // Remove previous light if it was active
         if (isActivated && lineRenderer != null)
         {
@@ -439,12 +504,19 @@ public class Flower : MonoBehaviour
 
         currentTarget = newTarget;
         
-        Debug.Log($"Flor {gameObject.name}: Alvo mudado para {(newTarget != null ? newTarget.name : "null")}");
+        Debug.Log($"Flor {gameObject.name}: Alvo mudado para {(newTarget != null ? newTarget.name : "null")}{(suppressSound ? " (silently)" : "")}");
 
         // If the flower was already activated, emit light to the new target
         if (isActivated)
         {
+            // Temporarily suppress sound if requested
+            bool originalSuppression = suppressEmissionSound;
+            suppressEmissionSound = suppressSound;
+            
             EmitLightToTarget();
+            
+            // Restore original suppression state
+            suppressEmissionSound = originalSuppression;
         }
     }
 

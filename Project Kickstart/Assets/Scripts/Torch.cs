@@ -204,6 +204,22 @@ public class Torch : MonoBehaviour
 
     private void EmitLight()
     {
+        EmitLightInternal(false);
+    }
+    
+    /// <summary>
+    /// Emit light silently (for dimension changes)
+    /// </summary>
+    private void EmitLightSilently()
+    {
+        EmitLightInternal(true);
+    }
+    
+    /// <summary>
+    /// Internal method to emit light with optional sound suppression
+    /// </summary>
+    private void EmitLightInternal(bool suppressSound)
+    {
         if (targetFlower == null)
         {
             Debug.LogWarning("Torch: targetFlower não configurado!");
@@ -227,11 +243,18 @@ public class Torch : MonoBehaviour
             lineRenderer.SetPosition(1, targetFlower.position);
         }
 
-        // Activate the first flower
+        // Activate the first flower (silently if requested)
         Flower flower = targetFlower.GetComponent<Flower>();
         if (flower != null)
         {
-            flower.ReceiveLight();
+            if (suppressSound)
+            {
+                flower.ReceiveLightSilently();
+            }
+            else
+            {
+                flower.ReceiveLight();
+            }
         }
         else
         {
@@ -341,14 +364,62 @@ public class Torch : MonoBehaviour
     // Method to configure the target flower via script
     public void SetTargetFlower(Transform newTarget)
     {
+        SetTargetFlowerInternal(newTarget, false);
+    }
+    
+    /// <summary>
+    /// Set target flower without activating it (for platform deactivation)
+    /// </summary>
+    public void SetTargetFlowerSilently(Transform newTarget)
+    {
+        SetTargetFlowerInternal(newTarget, true);
+    }
+    
+    /// <summary>
+    /// Internal method to set target with optional activation suppression
+    /// </summary>
+    private void SetTargetFlowerInternal(Transform newTarget, bool suppressActivation)
+    {
         targetFlower = newTarget;
-        EmitLight();
+        
+        if (!suppressActivation)
+        {
+            EmitLight();
+        }
+        else
+        {
+            // Just emit visual light without activating the flower
+            EmitLightVisualOnly();
+        }
     }
     
     // Method to manually activate the torch
     public void ActivateTorch()
     {
-        EmitLight();
+        ActivateTorchInternal(false);
+    }
+    
+    /// <summary>
+    /// Activate torch silently (for dimension changes - no sound)
+    /// </summary>
+    public void ActivateTorchSilently()
+    {
+        ActivateTorchInternal(true);
+    }
+    
+    /// <summary>
+    /// Internal method to activate torch with optional sound suppression
+    /// </summary>
+    private void ActivateTorchInternal(bool suppressSound)
+    {
+        if (suppressSound)
+        {
+            EmitLightSilently();
+        }
+        else
+        {
+            EmitLight();
+        }
     }
     
     // Method to emit only the light visual (without activating the flower)

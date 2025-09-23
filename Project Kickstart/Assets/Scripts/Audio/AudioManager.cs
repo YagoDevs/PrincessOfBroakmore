@@ -15,12 +15,37 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip[] boxPushSounds;
     [SerializeField] private AudioClip[] boxSlideSounds;
     
+    [Header("Platform Movement Sounds")]
+    [SerializeField] private AudioClip[] platformMovementSounds;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de movimento das plataformas (0.0 a 1.0)")]
+    private float platformMovementVolume = 0.6f;
+    
+    [Header("Flower Light Sounds")]
+    [SerializeField] private AudioClip[] flowerEmissionToObjectSounds;
+    [SerializeField] private AudioClip[] flowerEmissionToFlowerSounds;
+    [SerializeField] private AudioClip[] flowerLightReceptionSounds;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de emissão para objetos (0.0 a 1.0)")]
+    private float flowerEmissionToObjectVolume = 0.5f;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de emissão para flores - caminho correto! (0.0 a 1.0)")]
+    private float flowerEmissionToFlowerVolume = 0.8f;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de recepção de luz das flores (0.0 a 1.0)")]
+    private float flowerReceptionVolume = 0.7f;
+    
     [Header("Dimension Switch Sounds")]
     [SerializeField] private AudioClip[] dimensionSwitchSounds;
     [SerializeField] [Range(0f, 1f)] [Tooltip("Volume específico para sons de troca de dimensão (0.0 a 1.0)")]
     private float dimensionSwitchVolume = 0.8f;
     [SerializeField] [Range(0f, 2f)] [Tooltip("Delay antes de tocar o som de troca de dimensão (em segundos)")]
     private float dimensionSwitchDelay = 0.0f;
+    
+    [Header("Background Music")]
+    [SerializeField] private AudioClip dimensionABackgroundMusic;
+    [SerializeField] private AudioClip dimensionBBackgroundMusic;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume da música de fundo (0.0 a 1.0)")]
+    private float backgroundMusicVolume = 0.3f;
+    [SerializeField] [Range(0f, 3f)] [Tooltip("Tempo de fade ao trocar música (em segundos)")]
+    private float musicFadeTime = 1.5f;
+    [SerializeField] private bool enableBackgroundMusic = true;
     
     [Header("Audio Sources")]
     [SerializeField] private int maxAudioSources = 10;
@@ -34,6 +59,11 @@ public class AudioManager : MonoBehaviour
     // Pool of audio sources for efficiency
     private Queue<AudioSource> audioSourcePool = new Queue<AudioSource>();
     private List<AudioSource> activeAudioSources = new List<AudioSource>();
+    
+    // Background music control
+    private AudioSource backgroundMusicSource;
+    private DimensionType currentMusicDimension = DimensionType.DimensionA;
+    private bool isMusicFading = false;
     
     // Volume properties
     public float MasterVolume 
@@ -60,6 +90,42 @@ public class AudioManager : MonoBehaviour
         get => dimensionSwitchDelay; 
         set => dimensionSwitchDelay = Mathf.Max(0f, value); 
     }
+    
+    public float BackgroundMusicVolume 
+    { 
+        get => backgroundMusicVolume; 
+        set => backgroundMusicVolume = Mathf.Clamp01(value); 
+    }
+    
+    public bool EnableBackgroundMusic 
+    { 
+        get => enableBackgroundMusic; 
+        set => enableBackgroundMusic = value; 
+    }
+    
+    public float PlatformMovementVolume 
+    { 
+        get => platformMovementVolume; 
+        set => platformMovementVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float FlowerEmissionToObjectVolume 
+    { 
+        get => flowerEmissionToObjectVolume; 
+        set => flowerEmissionToObjectVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float FlowerEmissionToFlowerVolume 
+    { 
+        get => flowerEmissionToFlowerVolume; 
+        set => flowerEmissionToFlowerVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float FlowerReceptionVolume 
+    { 
+        get => flowerReceptionVolume; 
+        set => flowerReceptionVolume = Mathf.Clamp01(value); 
+    }
 
     private void Awake()
     {
@@ -69,6 +135,7 @@ public class AudioManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeAudioSources();
+            InitializeBackgroundMusic();
         }
         else
         {
@@ -84,7 +151,14 @@ public class AudioManager : MonoBehaviour
             Debug.Log("AudioManager initialized successfully");
         }
         
-        // Removed auto-test - only test manually
+        // Subscribe to dimension changes to handle background music
+        DimensionManager.OnDimensionChanged += OnDimensionChanged;
+        
+        // Start background music for initial dimension
+        if (enableBackgroundMusic)
+        {
+            StartBackgroundMusic(DimensionType.DimensionA);
+        }
     }
     
     /// <summary>
@@ -208,6 +282,122 @@ public class AudioManager : MonoBehaviour
         float volume = Mathf.Clamp01(velocity * 0.2f + 0.2f) * sfxVolume * masterVolume;
         
         PlaySoundAtPosition(clipToPlay, position, volume, 1f);
+    }
+
+    /// <summary>
+    /// Play platform movement sound (for up/down movement)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    /// <param name="isMovingDown">True if platform is moving down, false if moving up</param>
+    public void PlayPlatformMovementSound(Vector3 position, bool isMovingDown = true)
+    {
+        if (platformMovementSounds == null || platformMovementSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No platform movement sounds configured!");
+            return;
+        }
+
+        // Select random platform movement sound
+        AudioClip clipToPlay = platformMovementSounds[Random.Range(0, platformMovementSounds.Length)];
+        
+        // Calculate volume and pitch
+        float volume = platformMovementVolume * sfxVolume * masterVolume;
+        float pitch = isMovingDown ? 0.9f : 1.1f; // Slightly lower pitch for down, higher for up
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing platform movement sound at {position} (moving {(isMovingDown ? "down" : "up")}) with volume {volume} and pitch {pitch}");
+        }
+    }
+
+    /// <summary>
+    /// Play flower light emission sound to object (when flower emits light to non-flower objects)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    /// <param name="targetName">Name of target for debug purposes</param>
+    public void PlayFlowerEmissionToObjectSound(Vector3 position, string targetName = "unknown")
+    {
+        if (flowerEmissionToObjectSounds == null || flowerEmissionToObjectSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No flower emission to object sounds configured!");
+            return;
+        }
+
+        // Select random flower emission to object sound
+        AudioClip clipToPlay = flowerEmissionToObjectSounds[Random.Range(0, flowerEmissionToObjectSounds.Length)];
+        
+        // Calculate volume and pitch
+        float volume = flowerEmissionToObjectVolume * sfxVolume * masterVolume;
+        float pitch = Random.Range(0.9f, 1.1f); // Slight pitch variation for variety
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing flower emission to OBJECT sound at {position} targeting {targetName} with volume {volume}");
+        }
+    }
+
+    /// <summary>
+    /// Play flower light emission sound to another flower (indicates correct puzzle path!)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    /// <param name="targetFlowerName">Name of target flower for debug purposes</param>
+    public void PlayFlowerEmissionToFlowerSound(Vector3 position, string targetFlowerName = "unknown")
+    {
+        if (flowerEmissionToFlowerSounds == null || flowerEmissionToFlowerSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No flower emission to flower sounds configured!");
+            return;
+        }
+
+        // Select random flower emission to flower sound
+        AudioClip clipToPlay = flowerEmissionToFlowerSounds[Random.Range(0, flowerEmissionToFlowerSounds.Length)];
+        
+        // Calculate volume and pitch - higher volume and pitch for positive feedback
+        float volume = flowerEmissionToFlowerVolume * sfxVolume * masterVolume;
+        float pitch = Random.Range(1.1f, 1.3f); // Higher pitch for correct path feedback
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing flower emission to FLOWER sound at {position} targeting {targetFlowerName} with volume {volume} - CORRECT PUZZLE PATH!");
+        }
+    }
+
+    /// <summary>
+    /// Play flower light reception sound (when flower receives light - indicates correct path)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    /// <param name="flowerName">Name of flower for debug purposes</param>
+    public void PlayFlowerLightReceptionSound(Vector3 position, string flowerName = "unknown")
+    {
+        if (flowerLightReceptionSounds == null || flowerLightReceptionSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No flower light reception sounds configured!");
+            return;
+        }
+
+        // Select random flower reception sound
+        AudioClip clipToPlay = flowerLightReceptionSounds[Random.Range(0, flowerLightReceptionSounds.Length)];
+        
+        // Calculate volume and pitch 
+        float volume = flowerReceptionVolume * sfxVolume * masterVolume;
+        float pitch = Random.Range(1.0f, 1.2f); // Slightly higher pitch for positive feedback
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing flower reception sound for {flowerName} at {position} with volume {volume} (correct path!)");
+        }
     }
 
     /// <summary>
@@ -406,8 +596,226 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Initialize background music audio source
+    /// </summary>
+    private void InitializeBackgroundMusic()
+    {
+        GameObject musicSourceGO = new GameObject("BackgroundMusicSource");
+        musicSourceGO.transform.SetParent(transform);
+        backgroundMusicSource = musicSourceGO.AddComponent<AudioSource>();
+        backgroundMusicSource.playOnAwake = false;
+        backgroundMusicSource.loop = true;
+        backgroundMusicSource.spatialBlend = 0f; // 2D sound
+        backgroundMusicSource.volume = 0f; // Start silent, will fade in
+    }
+
+    /// <summary>
+    /// Handle dimension change events to switch background music
+    /// </summary>
+    private void OnDimensionChanged(DimensionType newDimension)
+    {
+        if (!enableBackgroundMusic) return;
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"AudioManager: Dimension changed to {newDimension}, switching background music");
+        }
+        
+        ChangeBackgroundMusic(newDimension);
+    }
+
+    /// <summary>
+    /// Start background music for a specific dimension
+    /// </summary>
+    public void StartBackgroundMusic(DimensionType dimension)
+    {
+        if (!enableBackgroundMusic || backgroundMusicSource == null) return;
+        
+        AudioClip musicClip = GetBackgroundMusicForDimension(dimension);
+        if (musicClip == null)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning($"No background music configured for {dimension}");
+            return;
+        }
+        
+        backgroundMusicSource.clip = musicClip;
+        backgroundMusicSource.volume = backgroundMusicVolume * masterVolume;
+        backgroundMusicSource.Play();
+        currentMusicDimension = dimension;
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Started background music for {dimension}: {musicClip.name}");
+        }
+    }
+
+    /// <summary>
+    /// Change background music with fade transition
+    /// </summary>
+    public void ChangeBackgroundMusic(DimensionType newDimension)
+    {
+        if (!enableBackgroundMusic || backgroundMusicSource == null) return;
+        if (newDimension == currentMusicDimension) return; // Already playing this dimension's music
+        
+        AudioClip newMusicClip = GetBackgroundMusicForDimension(newDimension);
+        if (newMusicClip == null)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning($"No background music configured for {newDimension}");
+            return;
+        }
+        
+        if (isMusicFading) return; // Prevent multiple fade operations
+        
+        StartCoroutine(FadeBackgroundMusic(newMusicClip, newDimension));
+    }
+
+    /// <summary>
+    /// Get background music clip for a specific dimension
+    /// </summary>
+    private AudioClip GetBackgroundMusicForDimension(DimensionType dimension)
+    {
+        return dimension == DimensionType.DimensionA ? dimensionABackgroundMusic : dimensionBBackgroundMusic;
+    }
+
+    /// <summary>
+    /// Coroutine to fade between background music tracks
+    /// </summary>
+    private System.Collections.IEnumerator FadeBackgroundMusic(AudioClip newClip, DimensionType newDimension)
+    {
+        isMusicFading = true;
+        float targetVolume = backgroundMusicVolume * masterVolume;
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Fading background music from {currentMusicDimension} to {newDimension}");
+        }
+        
+        // Fade out current music
+        if (backgroundMusicSource.isPlaying)
+        {
+            float startVolume = backgroundMusicSource.volume;
+            float fadeOutTime = musicFadeTime * 0.5f; // Half time for fade out
+            
+            for (float t = 0; t < fadeOutTime; t += Time.deltaTime)
+            {
+                backgroundMusicSource.volume = Mathf.Lerp(startVolume, 0f, t / fadeOutTime);
+                yield return null;
+            }
+            
+            backgroundMusicSource.volume = 0f;
+            backgroundMusicSource.Stop();
+        }
+        
+        // Switch to new music
+        backgroundMusicSource.clip = newClip;
+        backgroundMusicSource.Play();
+        currentMusicDimension = newDimension;
+        
+        // Fade in new music
+        float fadeInTime = musicFadeTime * 0.5f; // Half time for fade in
+        
+        for (float t = 0; t < fadeInTime; t += Time.deltaTime)
+        {
+            backgroundMusicSource.volume = Mathf.Lerp(0f, targetVolume, t / fadeInTime);
+            yield return null;
+        }
+        
+        backgroundMusicSource.volume = targetVolume;
+        isMusicFading = false;
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Background music fade complete: Now playing {newClip.name} for {newDimension}");
+        }
+    }
+
+    /// <summary>
+    /// Stop background music
+    /// </summary>
+    public void StopBackgroundMusic()
+    {
+        if (backgroundMusicSource != null && backgroundMusicSource.isPlaying)
+        {
+            backgroundMusicSource.Stop();
+            if (showDebugInfo)
+            {
+                Debug.Log("Background music stopped");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Test background music system
+    /// </summary>
+    [ContextMenu("Test Background Music A")]
+    public void TestBackgroundMusicA()
+    {
+        ChangeBackgroundMusic(DimensionType.DimensionA);
+    }
+
+    /// <summary>
+    /// Test background music system
+    /// </summary>
+    [ContextMenu("Test Background Music B")]
+    public void TestBackgroundMusicB()
+    {
+        ChangeBackgroundMusic(DimensionType.DimensionB);
+    }
+
+    /// <summary>
+    /// Test platform movement sound (down)
+    /// </summary>
+    [ContextMenu("Test Platform Sound Down")]
+    public void TestPlatformSoundDown()
+    {
+        PlayPlatformMovementSound(transform.position, true);
+    }
+
+    /// <summary>
+    /// Test platform movement sound (up)
+    /// </summary>
+    [ContextMenu("Test Platform Sound Up")]
+    public void TestPlatformSoundUp()
+    {
+        PlayPlatformMovementSound(transform.position, false);
+    }
+
+    /// <summary>
+    /// Test flower emission to object sound
+    /// </summary>
+    [ContextMenu("Test Flower Emission to Object")]
+    public void TestFlowerEmissionToObjectSound()
+    {
+        PlayFlowerEmissionToObjectSound(transform.position, "TestObject");
+    }
+
+    /// <summary>
+    /// Test flower emission to flower sound (correct path)
+    /// </summary>
+    [ContextMenu("Test Flower Emission to Flower")]
+    public void TestFlowerEmissionToFlowerSound()
+    {
+        PlayFlowerEmissionToFlowerSound(transform.position, "TestFlower");
+    }
+
+    /// <summary>
+    /// Test flower light reception sound
+    /// </summary>
+    [ContextMenu("Test Flower Reception Sound")]
+    public void TestFlowerReceptionSound()
+    {
+        PlayFlowerLightReceptionSound(transform.position, "TestFlower");
+    }
+
     private void OnDestroy()
     {
+        // Unsubscribe from events
+        DimensionManager.OnDimensionChanged -= OnDimensionChanged;
+        
         StopAllSounds();
+        StopBackgroundMusic();
     }
 }
