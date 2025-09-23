@@ -22,10 +22,15 @@ public class GuardMovement : MonoBehaviour
 
     public float chargeSpeed = 10f;
     public float chargeDuration = 1.5f;
+    
+    [Header("Sound Settings")]
+    public float proximityDistance = 2f; // Distância para tocar som de proximidade
+    public float hitDistance = 1f; // Distância para "pegar" a princesa
 
     private Transform currentTarget;
     private Vector3 chargeDirection;
     private float chargeTimer;
+    private bool hasPlayedProximitySound = false; // Flag para não repetir o som
 
     public Transform Shadow;
 
@@ -113,6 +118,7 @@ public class GuardMovement : MonoBehaviour
                     agent.isStopped = true;
                     currentState = GuardState.Charging;
                     animator.SetBool("Charge", true);
+                    hasPlayedProximitySound = false; // Reset flag quando inicia nova charge
                     return;
                 }
             }
@@ -128,12 +134,47 @@ public class GuardMovement : MonoBehaviour
             transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
             chargeTimer -= Time.deltaTime;
             animator.SetBool("Charge", true);
+            
+            // Verificar proximidade e colisão com o alvo
+            if (currentTarget != null)
+            {
+                CheckProximityAndCollision();
+            }
         }
         else
         {
             currentState = GuardState.Returning;
         }
         animator.SetBool("Charge", false);
+    }
+    
+    void CheckProximityAndCollision()
+    {
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+        
+        // Tocar som de proximidade quando chegar perto
+        if (!hasPlayedProximitySound && distanceToTarget <= proximityDistance)
+        {
+            hasPlayedProximitySound = true;
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayGuardProximitySound(transform.position);
+            }
+        }
+        
+        // Verificar se conseguiu "pegar" a princesa
+        if (distanceToTarget <= hitDistance)
+        {
+            // Tocar som de hit na princesa
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPrincessHitSound(currentTarget.position);
+            }
+            
+            // Parar a charge - conseguiu pegar a princesa
+            currentState = GuardState.Returning;
+            currentTarget = null;
+        }
     }
 
     void ReturnToPatrol()
@@ -152,6 +193,7 @@ public class GuardMovement : MonoBehaviour
     {
         if (eyes == null) return;
 
+        // Desenhar área de visão
         Gizmos.color = new Color(1, 1, 0, 0.25f);
         Gizmos.DrawWireSphere(eyes.position, viewRadius);
 
@@ -161,5 +203,17 @@ public class GuardMovement : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(eyes.position, eyes.position + leftBoundary * viewRadius);
         Gizmos.DrawLine(eyes.position, eyes.position + rightBoundary * viewRadius);
+        
+        // Desenhar distâncias de som e hit
+        if (currentState == GuardState.Charging)
+        {
+            // Distância de proximidade (som)
+            Gizmos.color = new Color(1, 0.5f, 0, 0.3f); // Laranja
+            Gizmos.DrawWireSphere(transform.position, proximityDistance);
+            
+            // Distância de hit
+            Gizmos.color = new Color(1, 0, 0, 0.5f); // Vermelho
+            Gizmos.DrawWireSphere(transform.position, hitDistance);
+        }
     }
 }

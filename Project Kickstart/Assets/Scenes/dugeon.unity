@@ -222,6 +222,82 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e6a6f9908b19be44ac59af3689a8f8a, type: 3}
   m_PrefabInstance: {fileID: 1979887283}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &49052291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 49052293}
+  - component: {fileID: 49052292}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &49052292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 49052291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd26e26d31ac2c24bb8489ad8c4483ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  masterVolume: 1
+  sfxVolume: 1
+  boxPushSounds: []
+  boxSlideSounds: []
+  platformMovementSounds:
+  - {fileID: 8300000, guid: 20b83c1283e6f8447b880145af1b682a, type: 3}
+  platformMovementVolume: 0.6
+  flowerEmissionToObjectSounds:
+  - {fileID: 8300000, guid: 6d5969d93bf57864fb57e1c1676401ab, type: 3}
+  flowerEmissionToFlowerSounds:
+  - {fileID: 8300000, guid: f9c528ca96d026e448664c74308a0542, type: 3}
+  flowerLightReceptionSounds: []
+  flowerEmissionToObjectVolume: 0.5
+  flowerEmissionToFlowerVolume: 0.8
+  flowerReceptionVolume: 0.7
+  dimensionSwitchSounds:
+  - {fileID: 8300000, guid: 3a2ce357d89a49945b4d6730e97ab21d, type: 3}
+  dimensionSwitchVolume: 0.8
+  dimensionSwitchDelay: 0
+  guardProximitySounds:
+  - {fileID: 8300000, guid: 6d3f40cf1e8000347a113ad0eae2cfcc, type: 3}
+  princessHitSounds:
+  - {fileID: 8300000, guid: 1a9fab11471082a4e87783844ff8b612, type: 3}
+  guardProximityVolume: 0.7
+  princessHitVolume: 0.8
+  dimensionABackgroundMusic: {fileID: 0}
+  dimensionBBackgroundMusic: {fileID: 0}
+  backgroundMusicVolume: 0.3
+  musicFadeTime: 1.5
+  enableBackgroundMusic: 1
+  maxAudioSources: 10
+  showDebugInfo: 0
+--- !u!4 &49052293
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 49052291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.669927, y: 1.6001476, z: -11.993572}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &49448786 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 3185560266923112958, guid: ca4d11895008b1c48a6407ba193bde92, type: 3}
@@ -12150,6 +12226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4705e4306c54a94c927816db3952f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
 --- !u!114 &1313750791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18511,7 +18588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2015219095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18642,6 +18719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4705e4306c54a94c927816db3952f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
 --- !u!1001 &2021930268
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20322,3 +20400,4 @@ SceneRoots:
   - {fileID: 907427802}
   - {fileID: 1299632726}
   - {fileID: 1923380940}
+  - {fileID: 49052293}
