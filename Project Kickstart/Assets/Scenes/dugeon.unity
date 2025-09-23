@@ -786,13 +786,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 496d4b738d2b1084ebc2c2dc9d54d69d, type: 3}
   m_PrefabInstance: {fileID: 115419612}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
---- !u!1 &123300682 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d2531177b3e287c4486f0266203c86b1, type: 3}
-  m_PrefabInstance: {fileID: 671164194}
-  m_PrefabAsset: {fileID: 0}
-=======
 --- !u!1 &122297570
 GameObject:
   m_ObjectHideFlags: 0
@@ -914,7 +907,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
->>>>>>> Stashed changes
 --- !u!1001 &123473526
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10570,34 +10562,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 90bedfc2119958348bdd40cd363482c6, type: 3}
   m_PrefabInstance: {fileID: 529040018}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
---- !u!65 &1309723003
-BoxCollider:
-=======
 --- !u!1 &1313750789
 GameObject:
->>>>>>> Stashed changes
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
-  m_GameObject: {fileID: 1135496195}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.02350001, y: 0.0070000053, z: 0.014000006}
-  m_Center: {x: -0.008250004, y: -0.0000000016689303, z: 0.007000002}
-=======
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1313750794}
@@ -10742,7 +10712,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 41.16, y: 60.003, z: 0}
->>>>>>> Stashed changes
 --- !u!1001 &1319315454
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13225,8 +13194,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1933182520}
   m_SourcePrefab: {fileID: 100100000, guid: 026aa322362d17147a215fac2c0ca21e, type: 3}
-<<<<<<< Updated upstream
-=======
 --- !u!1 &1611709609
 GameObject:
   m_ObjectHideFlags: 0
@@ -13348,7 +13315,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
->>>>>>> Stashed changes
 --- !u!1001 &1614415518
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15613,8 +15579,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7385812d74ae66546bc7fd5f7dd3625c, type: 3}
   m_PrefabInstance: {fileID: 1910363277}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
-=======
 --- !u!1 &1910444373
 GameObject:
   m_ObjectHideFlags: 0
@@ -15736,7 +15700,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 36.088, y: 0, z: 0}
->>>>>>> Stashed changes
 --- !u!1 &1933182518 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 026aa322362d17147a215fac2c0ca21e, type: 3}
