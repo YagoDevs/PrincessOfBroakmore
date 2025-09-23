@@ -14,7 +14,7 @@ public class CameraMovement : MonoBehaviour
         Vector3 targetPosition = player.position + offset;
 
         // Smooth follow
-        transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
+        transform.localPosition = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
 
         // Keep the same rotation (isometric angle)
         // Or if you want the camera to always look at player:
