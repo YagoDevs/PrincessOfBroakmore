@@ -42,6 +42,7 @@ public class Platform : MonoBehaviour
     private Vector3 originalPosition; // Original position of the platform
     private Vector3 targetPosition; // Target position of the platform
     private bool isMoving = false; // Whether it is moving
+    private bool playerOnPlatform = false; // Track if player is currently on platform
 
     private void Start()
     {
@@ -78,6 +79,33 @@ public class Platform : MonoBehaviour
         
         // Set initial state
         UpdateVisualState();
+        
+        // Subscribe to dimension changes to handle platform state when player is on it
+        DimensionManager.OnDimensionChanged += OnDimensionChanged;
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe from dimension changes
+        DimensionManager.OnDimensionChanged -= OnDimensionChanged;
+    }
+    
+    /// <summary>
+    /// Called when dimension changes - handle platform deactivation if player is on it
+    /// </summary>
+    private void OnDimensionChanged(DimensionType newDimension)
+    {
+        // If player is on platform and we're changing to a dimension where this platform shouldn't work
+        if (playerOnPlatform && onlyWorkInCorrectDimension && newDimension != activeDimension)
+        {
+            Debug.Log($"[PLATFORM DEBUG] Dimension changed to {newDimension}. Platform {gameObject.name} belongs to {activeDimension}. Force deactivating platform since player is on it.");
+            
+            // Force deactivate the platform since it shouldn't work in the new dimension
+            if (isActivated)
+            {
+                DeactivatePlatform();
+            }
+        }
     }
 
     private void Update()
@@ -110,6 +138,7 @@ public class Platform : MonoBehaviour
             }
             
             Debug.Log($"[PLATFORM DEBUG] Player detected in correct dimension! Activating platform...");
+            playerOnPlatform = true;
             ActivatePlatform();
         }
         else if (!other.CompareTag(playerTag))
@@ -136,6 +165,7 @@ public class Platform : MonoBehaviour
             }
             
             Debug.Log($"[PLATFORM DEBUG] Player exited! Deactivating platform...");
+            playerOnPlatform = false;
             DeactivatePlatform();
         }
     }
