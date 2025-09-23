@@ -38,6 +38,14 @@ public class AudioManager : MonoBehaviour
     [SerializeField] [Range(0f, 2f)] [Tooltip("Delay antes de tocar o som de troca de dimensão (em segundos)")]
     private float dimensionSwitchDelay = 0.0f;
     
+    [Header("Guard Sounds")]
+    [SerializeField] private AudioClip[] guardProximitySounds;
+    [SerializeField] private AudioClip[] princessHitSounds;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de proximidade do guarda (0.0 a 1.0)")]
+    private float guardProximityVolume = 0.7f;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Volume dos sons de hit na princesa (0.0 a 1.0)")]
+    private float princessHitVolume = 0.8f;
+    
     [Header("Background Music")]
     [SerializeField] private AudioClip dimensionABackgroundMusic;
     [SerializeField] private AudioClip dimensionBBackgroundMusic;
@@ -125,6 +133,18 @@ public class AudioManager : MonoBehaviour
     { 
         get => flowerReceptionVolume; 
         set => flowerReceptionVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float GuardProximityVolume 
+    { 
+        get => guardProximityVolume; 
+        set => guardProximityVolume = Mathf.Clamp01(value); 
+    }
+    
+    public float PrincessHitVolume 
+    { 
+        get => princessHitVolume; 
+        set => princessHitVolume = Mathf.Clamp01(value); 
     }
 
     private void Awake()
@@ -808,6 +828,80 @@ public class AudioManager : MonoBehaviour
     public void TestFlowerReceptionSound()
     {
         PlayFlowerLightReceptionSound(transform.position, "TestFlower");
+    }
+
+    /// <summary>
+    /// Play guard proximity sound (when guard gets close to princess during charge)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    public void PlayGuardProximitySound(Vector3 position)
+    {
+        if (guardProximitySounds == null || guardProximitySounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No guard proximity sounds configured!");
+            return;
+        }
+
+        // Select random guard proximity sound
+        AudioClip clipToPlay = guardProximitySounds[Random.Range(0, guardProximitySounds.Length)];
+        
+        // Calculate volume and pitch
+        float volume = guardProximityVolume * sfxVolume * masterVolume;
+        float pitch = Random.Range(0.8f, 1.2f); // Slight pitch variation for menacing effect
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing guard proximity sound at {position} with volume {volume}");
+        }
+    }
+
+    /// <summary>
+    /// Play princess hit sound (when guard catches the princess)
+    /// </summary>
+    /// <param name="position">World position where sound should play</param>
+    public void PlayPrincessHitSound(Vector3 position)
+    {
+        if (princessHitSounds == null || princessHitSounds.Length == 0)
+        {
+            if (showDebugInfo)
+                Debug.LogWarning("No princess hit sounds configured!");
+            return;
+        }
+
+        // Select random princess hit sound
+        AudioClip clipToPlay = princessHitSounds[Random.Range(0, princessHitSounds.Length)];
+        
+        // Calculate volume and pitch
+        float volume = princessHitVolume * sfxVolume * masterVolume;
+        float pitch = Random.Range(0.9f, 1.1f); // Slight pitch variation
+        
+        PlaySoundAtPosition(clipToPlay, position, volume, pitch);
+        
+        if (showDebugInfo)
+        {
+            Debug.Log($"Playing princess hit sound at {position} with volume {volume}");
+        }
+    }
+
+    /// <summary>
+    /// Test guard proximity sound
+    /// </summary>
+    [ContextMenu("Test Guard Proximity Sound")]
+    public void TestGuardProximitySound()
+    {
+        PlayGuardProximitySound(transform.position);
+    }
+
+    /// <summary>
+    /// Test princess hit sound
+    /// </summary>
+    [ContextMenu("Test Princess Hit Sound")]
+    public void TestPrincessHitSound()
+    {
+        PlayPrincessHitSound(transform.position);
     }
 
     private void OnDestroy()
