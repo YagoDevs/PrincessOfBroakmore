@@ -198,6 +198,8 @@ MonoBehaviour:
     m_Bits: 128
   chargeSpeed: 4
   chargeDuration: 1
+  Shadow: {fileID: 0}
+  animator: {fileID: 910566402796452535}
 --- !u!1001 &5460920179385855103
 PrefabInstance:
   m_ObjectHideFlags: 0

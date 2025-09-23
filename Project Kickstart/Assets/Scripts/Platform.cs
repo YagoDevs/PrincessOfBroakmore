@@ -21,6 +21,10 @@ public class Platform : MonoBehaviour
     [SerializeField] private bool isActivated = false;
     [SerializeField] private bool canBeDeactivated = true; // Whether it can be deactivated on exit
     
+    [Header("Dimension Settings")]
+    [SerializeField] private DimensionType activeDimension = DimensionType.DimensionA; // Which dimension this platform belongs to
+    [SerializeField] private bool onlyWorkInCorrectDimension = true; // Whether platform only works in its assigned dimension
+    
     [Header("Visual Effects")]
     [SerializeField] private GameObject activatedEffect; // Effect when activated
     [SerializeField] private Material activatedMaterial; // Material when activated
@@ -98,7 +102,14 @@ public class Platform : MonoBehaviour
         
         if (other.CompareTag(playerTag) && !isActivated)
         {
-            Debug.Log($"[PLATFORM DEBUG] Player detected! Activating platform...");
+            // Check dimension before activating
+            if (onlyWorkInCorrectDimension && !IsInCorrectDimension())
+            {
+                Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} is in dimension {activeDimension}, but current dimension is {GetCurrentDimension()}. Platform will NOT activate.");
+                return;
+            }
+            
+            Debug.Log($"[PLATFORM DEBUG] Player detected in correct dimension! Activating platform...");
             ActivatePlatform();
         }
         else if (!other.CompareTag(playerTag))
@@ -117,6 +128,13 @@ public class Platform : MonoBehaviour
         
         if (other.CompareTag(playerTag) && isActivated && canBeDeactivated)
         {
+            // Check dimension before deactivating
+            if (onlyWorkInCorrectDimension && !IsInCorrectDimension())
+            {
+                Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} not in correct dimension, ignoring exit.");
+                return;
+            }
+            
             Debug.Log($"[PLATFORM DEBUG] Player exited! Deactivating platform...");
             DeactivatePlatform();
         }
@@ -347,8 +365,55 @@ public class Platform : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Check if the platform is in the correct dimension to be activated
+    /// </summary>
+    private bool IsInCorrectDimension()
+    {
+        if (DimensionManager.Instance == null)
+        {
+            Debug.LogWarning($"[PLATFORM DEBUG] No DimensionManager found! Platform {gameObject.name} will work regardless of dimension.");
+            return true; // If no dimension manager, allow activation
+        }
+        
+        return DimensionManager.Instance.CurrentDimension == activeDimension;
+    }
+    
+    /// <summary>
+    /// Get the current dimension (for debug purposes)
+    /// </summary>
+    private DimensionType GetCurrentDimension()
+    {
+        if (DimensionManager.Instance == null)
+        {
+            return DimensionType.DimensionA; // Default
+        }
+        
+        return DimensionManager.Instance.CurrentDimension;
+    }
+    
+    /// <summary>
+    /// Manually set which dimension this platform belongs to
+    /// </summary>
+    public void SetDimension(DimensionType dimension)
+    {
+        activeDimension = dimension;
+        Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} assigned to dimension {dimension}");
+    }
+    
+    /// <summary>
+    /// Enable or disable dimension checking
+    /// </summary>
+    public void SetDimensionCheckEnabled(bool enabled)
+    {
+        onlyWorkInCorrectDimension = enabled;
+        Debug.Log($"[PLATFORM DEBUG] Platform {gameObject.name} dimension checking: {(enabled ? "ENABLED" : "DISABLED")}");
+    }
+
     // Properties for external access
     public bool IsActivated => isActivated;
     public Torch AssociatedTorch => torch;
     public Transform NewTarget => newTarget;
+    public DimensionType GetDimension => activeDimension;
+    public bool IsDimensionCheckEnabled => onlyWorkInCorrectDimension;
 }
