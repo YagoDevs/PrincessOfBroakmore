@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class GuardMovementCharge : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class GuardMovementCharge : MonoBehaviour
 
     private Transform currentTarget;
     private bool hasPlayedProximitySound = false; // Flag para não repetir o som
+	private bool hasHitPrincess = false; // Garantir um único hit
 
     void Start()
     {
@@ -133,7 +135,7 @@ public class GuardMovementCharge : MonoBehaviour
         }
     }
     
-    void CheckProximityAndCollision(float distanceToTarget)
+	void CheckProximityAndCollision(float distanceToTarget)
     {
         // Tocar som de proximidade quando chegar perto
         if (!hasPlayedProximitySound && distanceToTarget <= proximityDistance)
@@ -146,17 +148,21 @@ public class GuardMovementCharge : MonoBehaviour
         }
         
         // Verificar se conseguiu "pegar" a princesa
-        if (distanceToTarget <= hitDistance)
+		if (!hasHitPrincess && distanceToTarget <= hitDistance)
         {
+			hasHitPrincess = true;
             // Tocar som de hit na princesa
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayPrincessHitSound(currentTarget.position);
             }
             
-            // Parar a perseguição - conseguiu pegar a princesa
-            currentState = GuardState.Returning;
-            currentTarget = null;
+			// Carregar cena de interfaces (princesa tem 1 hit)
+			SceneManager.LoadScene("interfaces");
+			
+			// Parar a perseguição - conseguiu pegar a princesa
+			currentState = GuardState.Returning;
+			currentTarget = null;
         }
     }
 
