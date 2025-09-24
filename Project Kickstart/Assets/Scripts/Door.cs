@@ -53,7 +53,7 @@ public class Door : MonoBehaviour
         // Initial state
         UpdateVisualState();
         
-        Debug.Log($"[DOOR] Porta {gameObject.name} inicializada - Ângulo Z inicial: {currentZAngle}°, Requer luz: {requiresLight}");
+        // Debug.Log($"[DOOR] Porta {gameObject.name} inicializada - Ângulo Z inicial: {currentZAngle}°, Requer luz: {requiresLight}");
     }
     
     private void Update()
@@ -86,24 +86,24 @@ public class Door : MonoBehaviour
         bool wasReceivingLight = isReceivingLight;
         isReceivingLight = false;
         
-        Debug.Log($"[DOOR] Checking light sequence for door {gameObject.name}");
+        // Debug.Log($"[DOOR] Checking light sequence for door {gameObject.name}");
         
         // NEW VALIDATION: Check if there's a complete sequence from torch to door
         if (ValidateCompleteSequence())
         {
             isReceivingLight = true;
-            Debug.Log($"[DOOR] ✅ Door {gameObject.name} RECEIVING light - Complete sequence validated!");
+            // Debug.Log($"[DOOR] ✅ Door {gameObject.name} RECEIVING light - Complete sequence validated!");
         }
         else
         {
-            Debug.Log($"[DOOR] ❌ Door {gameObject.name} NOT receiving light - Incomplete sequence");
+            // Debug.Log($"[DOOR] ❌ Door {gameObject.name} NOT receiving light - Incomplete sequence");
         }
         
         // If light state changed, update visuals
         if (wasReceivingLight != isReceivingLight)
         {
             UpdateVisualState();
-            Debug.Log($"[DOOR] 🔄 Door {gameObject.name} {(isReceivingLight ? "receiving" : "lost")} light");
+            // Debug.Log($"[DOOR] 🔄 Door {gameObject.name} {(isReceivingLight ? "receiving" : "lost")} light");
         }
     }
     
@@ -116,7 +116,7 @@ public class Door : MonoBehaviour
         {
             if (torch == null || torch.CurrentTarget == null) continue;
             
-            Debug.Log($"[DOOR VALIDATION] Checking sequence from torch {torch.name}");
+            // Debug.Log($"[DOOR VALIDATION] Checking sequence from torch {torch.name}");
             
             // 2. Trace the complete chain from this torch
             if (TraceSequenceFromTorch(torch))
@@ -134,7 +134,7 @@ public class Door : MonoBehaviour
         int maxIterations = 20; // Prevent infinite loops
         int iterations = 0;
         
-        Debug.Log($"[DOOR VALIDATION] Starting trace from torch {torch.name} -> {currentTarget.name}");
+        // Debug.Log($"[DOOR VALIDATION] Starting trace from torch {torch.name} -> {currentTarget.name}");
         
         while (currentTarget != null && iterations < maxIterations)
         {
@@ -143,7 +143,7 @@ public class Door : MonoBehaviour
             // Check if we reached the door
             if (currentTarget == transform)
             {
-                Debug.Log($"[DOOR VALIDATION] ✅ Reached door! Complete sequence validated in {iterations} steps");
+                // Debug.Log($"[DOOR VALIDATION] ✅ Reached door! Complete sequence validated in {iterations} steps");
                 return true;
             }
             
@@ -151,14 +151,14 @@ public class Door : MonoBehaviour
             Flower flower = currentTarget.GetComponent<Flower>();
             if (flower == null)
             {
-                Debug.Log($"[DOOR VALIDATION] ❌ Target {currentTarget.name} is not a flower - sequence broken");
+                // Debug.Log($"[DOOR VALIDATION] ❌ Target {currentTarget.name} is not a flower - sequence broken");
                 return false;
             }
             
             // Check if flower is activated
             if (!flower.IsActivated)
             {
-                Debug.Log($"[DOOR VALIDATION] ❌ Flower {flower.name} is not activated - sequence broken");
+                // Debug.Log($"[DOOR VALIDATION] ❌ Flower {flower.name} is not activated - sequence broken");
                 return false;
             }
             
@@ -168,18 +168,18 @@ public class Door : MonoBehaviour
                 float distance = Vector3.Distance(flower.transform.position, transform.position);
                 if (distance > lightDetectionRange && flower.CurrentTarget == transform)
                 {
-                    Debug.Log($"[DOOR VALIDATION] ❌ Flower {flower.name} too far from door (distance: {distance:F2}, limit: {lightDetectionRange})");
+                    // Debug.Log($"[DOOR VALIDATION] ❌ Flower {flower.name} too far from door (distance: {distance:F2}, limit: {lightDetectionRange})");
                     return false;
                 }
             }
             
             // Move to next target in the chain
             Transform nextTarget = flower.CurrentTarget;
-            Debug.Log($"[DOOR VALIDATION] Step {iterations}: Flower {flower.name} -> {(nextTarget != null ? nextTarget.name : "null")}");
+            // Debug.Log($"[DOOR VALIDATION] Step {iterations}: Flower {flower.name} -> {(nextTarget != null ? nextTarget.name : "null")}");
             
             if (nextTarget == currentTarget)
             {
-                Debug.Log($"[DOOR VALIDATION] ❌ Circular reference detected at {flower.name} - sequence broken");
+                // Debug.Log($"[DOOR VALIDATION] ❌ Circular reference detected at {flower.name} - sequence broken");
                 return false;
             }
             
@@ -188,11 +188,11 @@ public class Door : MonoBehaviour
         
         if (iterations >= maxIterations)
         {
-            Debug.LogWarning($"[DOOR VALIDATION] ❌ Max iterations reached - possible infinite loop");
+            // Debug.LogWarning($"[DOOR VALIDATION] ❌ Max iterations reached - possible infinite loop");
         }
         else
         {
-            Debug.Log($"[DOOR VALIDATION] ❌ Sequence ended without reaching door - last target: {(currentTarget != null ? currentTarget.name : "null")}");
+            // Debug.Log($"[DOOR VALIDATION] ❌ Sequence ended without reaching door - last target: {(currentTarget != null ? currentTarget.name : "null")}");
         }
         
         return false;
