@@ -12291,7 +12291,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2808662953548593394, guid: 55c858ee9020e4547914b335be9c7885, type: 3}
       propertyPath: m_Shadows.m_Type
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2830398822930651094, guid: 55c858ee9020e4547914b335be9c7885, type: 3}
       propertyPath: m_IsActive
@@ -12921,7 +12921,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: cc2e251b4d28b9c4593e91664132efb2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.13
+      value: 12.76
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cc2e251b4d28b9c4593e91664132efb2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -12929,7 +12929,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cc2e251b4d28b9c4593e91664132efb2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.14
+      value: 3.12
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cc2e251b4d28b9c4593e91664132efb2, type: 3}
       propertyPath: m_LocalRotation.w
