@@ -6074,6 +6074,8 @@ MonoBehaviour:
   torches:
   - {fileID: 645577522}
   - {fileID: 1973858155}
+  requiredDimension: 1
+  hideInWrongDimension: 1
   rotationStep: 90
   rotationDuration: 0.4
   rotationAxis: 2
@@ -9316,6 +9318,8 @@ MonoBehaviour:
   torches:
   - {fileID: 1343882277}
   - {fileID: 1870736163}
+  requiredDimension: 1
+  hideInWrongDimension: 1
   rotationStep: 90
   rotationDuration: 0.4
   rotationAxis: 2
@@ -12873,6 +12877,8 @@ MonoBehaviour:
   torches:
   - {fileID: 1642659282}
   - {fileID: 346924957}
+  requiredDimension: 1
+  hideInWrongDimension: 1
   rotationStep: 90
   rotationDuration: 0.4
   rotationAxis: 2
@@ -14968,6 +14974,8 @@ MonoBehaviour:
   torches:
   - {fileID: 1704625836}
   - {fileID: 1331136021}
+  requiredDimension: 1
+  hideInWrongDimension: 1
   rotationStep: 90
   rotationDuration: 0.4
   rotationAxis: 2
@@ -17710,7 +17718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8413c69b5930007448c9cebfbad74b48, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 1.27
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8413c69b5930007448c9cebfbad74b48, type: 3}
       propertyPath: m_LocalPosition.y
@@ -17718,7 +17726,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8413c69b5930007448c9cebfbad74b48, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.26
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8413c69b5930007448c9cebfbad74b48, type: 3}
       propertyPath: m_LocalRotation.w

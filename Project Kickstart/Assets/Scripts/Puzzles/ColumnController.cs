@@ -7,6 +7,10 @@ public class ColumnController : MonoBehaviour
     [SerializeField] private int columnID; // 1, 2, 3, or 4
     [SerializeField] private Transform columnMesh; // O mesh da coluna que vai rotacionar
     [SerializeField] private Transform[] torches; // Array das 2 tochas
+
+	[Header("Dimension Settings")]
+	[SerializeField] private DimensionType requiredDimension = DimensionType.DimensionB;
+	[SerializeField] private bool hideInWrongDimension = true; // Ocultar quando fora da dimensão requerida
     
     [Header("Rotation Settings")]
     [SerializeField] private float rotationStep = 90f; // Graus por rotação (corrigido para 90°)
@@ -30,6 +34,9 @@ public class ColumnController : MonoBehaviour
     private bool[] isConnectedTo; // Array indicando conexões ativas
     private ColumnPuzzleManager puzzleManager;
     private List<TorchLight> torchLightComponents = new List<TorchLight>();
+	private Renderer[] cachedRenderers;
+	private Light[] cachedLights;
+	private Collider[] cachedColliders;
     
     // Propriedades públicas
     public int ColumnID => columnID;
@@ -38,6 +45,19 @@ public class ColumnController : MonoBehaviour
     
     private void Start()
     {
+		// Cache de componentes para visibilidade por dimensão
+		cachedRenderers = GetComponentsInChildren<Renderer>(true);
+		cachedLights = GetComponentsInChildren<Light>(true);
+		cachedColliders = GetComponentsInChildren<Collider>(true);
+
+		// Aplicar estado de dimensão inicial
+		ApplyDimensionVisibility();
+
+		// Inscrever em mudanças de dimensão
+		if (DimensionManager.Instance != null)
+		{
+			DimensionManager.OnDimensionChanged += OnDimensionChanged;
+		}
         // Inicializar array de conexões
         isConnectedTo = new bool[5]; // Índice 0 não usado, 1-4 para colunas
         
@@ -88,6 +108,60 @@ public class ColumnController : MonoBehaviour
             Debug.Log($"Column {columnID} initialized at rotation {currentRotation}°");
         }
     }
+
+	private void OnDestroy()
+	{
+		if (DimensionManager.Instance != null)
+		{
+			DimensionManager.OnDimensionChanged -= OnDimensionChanged;
+		}
+	}
+
+	private void OnDimensionChanged(DimensionType newDimension)
+	{
+		ApplyDimensionVisibility();
+	}
+
+	private void ApplyDimensionVisibility()
+	{
+		if (!hideInWrongDimension || DimensionManager.Instance == null) return;
+		bool inRequired = DimensionManager.Instance.CurrentDimension == requiredDimension;
+
+		// Renderers
+		if (cachedRenderers != null)
+		{
+			for (int i = 0; i < cachedRenderers.Length; i++)
+			{
+				var r = cachedRenderers[i];
+				if (r != null) r.enabled = inRequired;
+			}
+		}
+
+		// Lights (das tochas)
+		if (cachedLights != null)
+		{
+			for (int i = 0; i < cachedLights.Length; i++)
+			{
+				var l = cachedLights[i];
+				if (l != null) l.enabled = inRequired && l.intensity > 0.01f; // mantém off se intensidade zero
+			}
+		}
+
+		// Colliders
+		if (cachedColliders != null)
+		{
+			for (int i = 0; i < cachedColliders.Length; i++)
+			{
+				var c = cachedColliders[i];
+				if (c != null) c.enabled = inRequired;
+			}
+		}
+
+		if (showDebugInfo)
+		{
+			Debug.Log($"Column {columnID}: visibility set to {(inRequired ? "VISIBLE" : "HIDDEN")} for dimension {DimensionManager.Instance.CurrentDimension} (required {requiredDimension})");
+		}
+	}
     
     private void ValidateSetup()
     {
