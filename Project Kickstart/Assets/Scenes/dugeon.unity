@@ -12939,6 +12939,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6910373876558140944, guid: 55c858ee9020e4547914b335be9c7885, type: 3}
+      propertyPath: m_Range
+      value: 68.02076
+      objectReference: {fileID: 0}
     - target: {fileID: 6918019287644408019, guid: 55c858ee9020e4547914b335be9c7885, type: 3}
       propertyPath: m_Name
       value: SceneLights
