@@ -13,6 +13,7 @@ public class PhaseManager : MonoBehaviour
     [SerializeField] private Transform phase1CameraPosition; // Camera position for phase 1
     [SerializeField] private Transform phase2CameraPosition; // Camera position for phase 2
     [SerializeField] private float cameraTransitionSpeed = 2f; // How fast camera moves
+    [SerializeField] CameraMovement cameraMovement;
     
     [Header("Phase Change Detection")]
     [SerializeField] private float detectionRange = 1f; // Distance to detect princess near door
@@ -112,6 +113,8 @@ public class PhaseManager : MonoBehaviour
         {
             princess.position = phase2TeleportPoint.position;
             princess.rotation = phase2TeleportPoint.rotation;
+
+            cameraMovement.Rotate();
             
             if (showDebugInfo)
             {

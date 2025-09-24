@@ -8,7 +8,7 @@ public class ObjectPusher : MonoBehaviour
     [SerializeField] private float maxPushDistance = 1.5f; // Maximum distance to push
     
     [Header("Pushable Object Tags")]
-    [SerializeField] private string[] pushableTags = { "Pushable" }; // Only tags that exist
+    [SerializeField] private string[] pushableTags = { "Pushable" }; // Only use existing tags
     
     private Rigidbody playerRb;
     
@@ -19,6 +19,30 @@ public class ObjectPusher : MonoBehaviour
         {
             Debug.LogWarning("ObjectPusher: Player needs a Rigidbody to push objects!");
         }
+        
+        // Remove tags inválidas automaticamente
+        ValidateAndCleanTags();
+    }
+    
+    private void ValidateAndCleanTags()
+    {
+        var validTags = new System.Collections.Generic.List<string>();
+        
+        foreach (string tag in pushableTags)
+        {
+            try
+            {
+                // Testa se a tag existe tentando usar CompareTag
+                gameObject.CompareTag(tag);
+                validTags.Add(tag);
+            }
+            catch (UnityEngine.UnityException)
+            {
+                // Tag não existe, ignora silenciosamente
+            }
+        }
+        
+        pushableTags = validTags.ToArray();
     }
     
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -67,21 +91,15 @@ public class ObjectPusher : MonoBehaviour
     
     private bool IsPushable(GameObject obj)
     {
-        // Check by tag (with validation if tag exists)
-        foreach (string tag in pushableTags)
+        // Check by tag (only valid tags after Start cleanup)
+        if (pushableTags != null)
         {
-            try
+            foreach (string tag in pushableTags)
             {
-                if (obj.CompareTag(tag))
+                if (!string.IsNullOrEmpty(tag) && obj.CompareTag(tag))
                 {
                     return true;
                 }
-            }
-            catch (UnityEngine.UnityException)
-            {
-                // Tag does not exist, ignore
-                Debug.LogWarning($"[ObjectPusher] Tag '{tag}' does not exist. Create it or remove from list.");
-                continue;
             }
         }
         
