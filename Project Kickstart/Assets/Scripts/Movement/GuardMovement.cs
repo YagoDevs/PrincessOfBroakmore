@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class GuardMovement : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class GuardMovement : MonoBehaviour
     private Vector3 chargeDirection;
     private float chargeTimer;
     private bool hasPlayedProximitySound = false; // Flag para não repetir o som
+	private bool hasHitPrincess = false; // Garantir um único hit
 
     public Transform Shadow;
 
@@ -129,14 +131,14 @@ public class GuardMovement : MonoBehaviour
     {
         animator.SetBool("Charge", true);
         animator.SetTrigger("Charging");
-        if (chargeTimer > 0)
+		if (chargeTimer > 0)
         {
             transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
             chargeTimer -= Time.deltaTime;
             animator.SetBool("Charge", true);
             
             // Verificar proximidade e colisão com o alvo
-            if (currentTarget != null)
+			if (currentTarget != null)
             {
                 CheckProximityAndCollision();
             }
@@ -148,7 +150,7 @@ public class GuardMovement : MonoBehaviour
         animator.SetBool("Charge", false);
     }
     
-    void CheckProximityAndCollision()
+	void CheckProximityAndCollision()
     {
         float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
         
@@ -163,17 +165,21 @@ public class GuardMovement : MonoBehaviour
         }
         
         // Verificar se conseguiu "pegar" a princesa
-        if (distanceToTarget <= hitDistance)
+		if (!hasHitPrincess && distanceToTarget <= hitDistance)
         {
+			hasHitPrincess = true;
             // Tocar som de hit na princesa
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayPrincessHitSound(currentTarget.position);
             }
             
-            // Parar a charge - conseguiu pegar a princesa
-            currentState = GuardState.Returning;
-            currentTarget = null;
+			// Carregar cena de interfaces (princesa tem 1 hit)
+			SceneManager.LoadScene("interfaces");
+			
+			// Parar a charge - conseguiu pegar a princesa
+			currentState = GuardState.Returning;
+			currentTarget = null;
         }
     }
 
