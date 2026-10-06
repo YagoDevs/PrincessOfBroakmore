@@ -8,9 +8,13 @@ A 3D puzzle and stealth adventure prototype built by a student team for **Projec
 
 **Unity 6 · C# · Universal Render Pipeline · Academic prototype · Team P6**
 
-[![Watch the Princess of Broakmore project video on YouTube](https://i.ytimg.com/vi/k2pmQBuVHO8/hqdefault.jpg)](https://www.youtube.com/watch?v=k2pmQBuVHO8)
-
-[▶ Watch the project video on YouTube](https://www.youtube.com/watch?v=k2pmQBuVHO8)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=k2pmQBuVHO8">
+    <img src="docs/images/video-preview.png" alt="Play the Princess of Broakmore project video on YouTube" width="480">
+  </a>
+  <br>
+  <a href="https://www.youtube.com/watch?v=k2pmQBuVHO8">Watch the project video on YouTube</a>
+</p>
 
 [Getting started](#getting-started) · [Meet the team](#team)
 
